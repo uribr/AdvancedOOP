@@ -1,10 +1,10 @@
 ### YOU SHOULD EDIT THE BELOW WITH YOUR DETAILS AND FILES ###
 
-set(user1 itzikkobra)
-set(user2 heizenberg)
+set(user1 benohayon)
+set(user2 uribracha)
 set(user3 noamgottlieb)
-set(id1 "123456789")
-set(id2 "123456789")
+set(id1 "304848518")
+set(id2 "313296550")
 set(id3 "201606951")
 set (SOURCE_FILES
 	file1.h
