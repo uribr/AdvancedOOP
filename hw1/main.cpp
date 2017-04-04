@@ -22,7 +22,6 @@ const int NUM_SHIPS = 5;
  * .attack-a -> atkPathA
  * .attack-b -> atkPathB
 int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string& boardPath) {
-
 }*/
 
 /*string getDirPath() { // uses windows.h
@@ -190,7 +189,7 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks) {
         if (y < 1 || y > rows) continue;
 
         while (lineStream >> nextChr && nextChr == ' ')     //seek comma
-        if (lineStream.eof() || nextChr != ',') continue;
+            if (lineStream.eof() || nextChr != ',') continue;
 
         lineStream >> x;                                    //read x coor
         if (x < 1 || x > cols) continue;
@@ -231,10 +230,8 @@ int main(int argc, char** argv) {
         cout << " | ";
         cout << endl;
     }
-
     // Check board validity and print errors
     cout << "check = " << checkBoardValidity(board) << endl;
-
     // Print attack vector
     for (int i = 0; i < attackA.size(); i++) {
         cout << attackA[i].first << "," << attackA[i].second << endl;
