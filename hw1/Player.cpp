@@ -1,8 +1,14 @@
-
 #include "Player.h"
 
 void Player::setBoard(const char **board, int numRows, int numCols)
 {
+    for (int i = 0; i < numRows; ++i)
+    {
+        for (int j = 0; j < numCols; ++j)
+        {
+            this->board[i][j] = board[i][j];
+        }
+    }
 
 }
 
@@ -18,3 +24,18 @@ void Player::notifyOnAttackResult(int player, int row, int col, AttackResult res
 {
 
 }
+
+void Player::setMoves(vector<pair<int, int>> moves)
+{
+    for (int i = 0; i < moves.size(); ++i)
+    {
+        this->movesQueue.push(moves[i]);
+    }
+    moves.clear();
+}
+
+bool Player::hasMoves()
+{
+    return !movesQueue.empty();
+}
+

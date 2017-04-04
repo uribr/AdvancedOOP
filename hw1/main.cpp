@@ -9,6 +9,7 @@
 #include <string>
 #include <stdlib.h>
 #include <stdio.h>
+#include "Player.h"
 //#include <windows.h>
 
 using namespace std;
@@ -24,6 +25,8 @@ const int NUM_SHIPS = 5;
 int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string& boardPath) {
 }*/
 
+void initIndividualBoards(string *pString, char a[10][10], char boardB[10][10]);
+
 /*string getDirPath() { // uses windows.h
     char buff[MAX_PATH];
     GetModuleFileName(NULL, buff, MAX_PATH); // inserts the executable path into buff
@@ -34,6 +37,9 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
 string getDirPath() {
     char* buff = new char[MAX_PATH];
     buff = getcwd(buff, MAX_PATH);
+    if (!buff) {
+        return "!@#"; //signs the string is bad
+    }
     string temp(buff);
     delete[] buff;
     return temp;
@@ -201,22 +207,51 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks) {
 
 int main(int argc, char** argv) {
     string dirPath;
-    string atkPathA = "C:\\Users\\ben\\CLionProjects\\testben\\test.attack-a";
-    string atkPathB;
-    string boardPath = "C:\\Users\\ben\\CLionProjects\\testben\\test.sboard";
+    string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
+    string atkPathB = "..\\hw1\\input\\clean_movesB.attack-b";
+    string boardPath = "..\\hw1\\input\\good_board_1.sboard";
     string* board = new string[rows];
     vector<pair<int,int>> attackA;
     vector<pair<int,int>> attackB;
+    Player A;
+    Player B;
+    char boardA[ROW_SIZE][COL_SIZE];
+    char boardB[ROW_SIZE][COL_SIZE];
 
     if (argc == 1) {
         dirPath = getDirPath();
+        if (dirPath == "!@#") //error occurred in getDirPath()
+        {
+            perror("Error");
+            return EXIT_FAILURE;
+        }
         //searchFiles(argv[1], atkPathA, atkPathB, boardPath);
-    } else {
+    }
+    else if (argc == 2){
         dirPath = argv[1];
         //searchFiles(dirPath, atkPathA, atkPathB, boardPath);
     }
+    else {
+        cout << "Error: Too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+    // setting up the main board
     initBoard(boardPath, board);
+    //setting up individual boards
+    initIndividualBoards(board,boardA,boardB);
+    // setting up attack vectors
     initAttack(atkPathA, attackA);
+    initAttack(atkPathB, attackB);
+
+    //now we pass the individual boards and attack vectors to the players
+    //TODO - fix setBoard (Noam)
+    A.setBoard((const char **)boardA, ROW_SIZE, COL_SIZE);
+    A.setMoves(attackA);
+    B.setBoard((const char **)boardB, ROW_SIZE, COL_SIZE);
+    B.setMoves(attackB);
+
+
+
 
     /* ------------------------------ PRINT TESTS ------------------------------
     // Print board
@@ -240,3 +275,55 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+void printBoard(const char board[][COL_SIZE])
+{
+    for (int i = 0; i < ROW_SIZE; ++i)
+    {
+        cout << "|";
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            cout << board[i][j];
+
+        }
+        cout << "|" << endl;
+
+    }
+}
+
+void initIndividualBoards(string *board, char boardA[ROW_SIZE][COL_SIZE], char boardB[ROW_SIZE][COL_SIZE])
+{
+    char c;
+    for (int i = 0; i < ROW_SIZE; ++i)
+    {
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            c = board[i][j];
+            if (isalpha(c)) //part of a ship
+            {
+                if (isupper(c)) // a ship of A
+                {
+                    boardA[i][j] = c;
+                    boardB[i][j] = '-';
+                }
+                else // a ship of B
+                {
+                    boardA[i][j] = '-';
+                    boardB[i][j] = c;
+                }
+            }
+            else // a space - update both boards
+            {
+                boardA[i][j] = '-';
+                boardB[i][j] = '-';
+            }
+        }
+    }
+
+//    printBoard(boardA);
+//    cout << endl;
+//    printBoard(boardB);
+//    cout << endl;
+
+}
+
