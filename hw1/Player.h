@@ -22,6 +22,7 @@ public:
     virtual std::pair<int, int> attack() override; // ask player for his move
     virtual void notifyOnAttackResult(int player, int row, int col, AttackResult result) override; // notify on last move result
     void setMoves(vector<pair<int,int>> moves);
+    char ** getBoard();
     bool hasMoves();
 };
 

@@ -25,7 +25,7 @@ const int NUM_SHIPS = 5;
 int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string& boardPath) {
 }*/
 
-void initIndividualBoards(string *pString, char a[10][10], char boardB[10][10]);
+void initIndividualBoards(string *pString, char **a, char **boardB);
 
 /*string getDirPath() { // uses windows.h
     char buff[MAX_PATH];
@@ -205,6 +205,22 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks) {
     atkFile.close();
 }
 
+void printBoard(const char **board)
+{
+    for (int i = 0; i < ROW_SIZE; ++i)
+    {
+        cout << "|";
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            cout << board[i][j];
+
+        }
+        cout << "|" << endl;
+
+    }
+}
+
+
 int main(int argc, char** argv) {
     string dirPath;
     string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
@@ -215,8 +231,14 @@ int main(int argc, char** argv) {
     vector<pair<int,int>> attackB;
     Player A;
     Player B;
-    char boardA[ROW_SIZE][COL_SIZE];
-    char boardB[ROW_SIZE][COL_SIZE];
+    char **boardA = new char *[ROW_SIZE];
+    char **boardB = new char *[ROW_SIZE];
+    for (int i = 0; i < COL_SIZE; ++i)
+    {
+        boardA[i] = new char[COL_SIZE];
+        boardB[i] = new char[COL_SIZE];
+    }
+
 
     if (argc == 1) {
         dirPath = getDirPath();
@@ -272,26 +294,28 @@ int main(int argc, char** argv) {
         cout << attackA[i].first << "," << attackA[i].second << endl;
     }
      ------------------------------------------------------------------------- */
+    //TODO - delete this....
+    char **boardATest = A.getBoard();
+    char **boardBTest = B.getBoard();
+    printBoard((const char **)boardATest);
+    cout << endl;
+    printBoard((const char **)boardBTest);
+
+    // delete local individual boards
+    for (int i = 0; i < COL_SIZE; ++i)
+    {
+        delete boardA[i];
+        delete boardB[i];
+    }
+    delete boardA;
+    delete boardB;
 
     return 0;
 }
 
-void printBoard(const char board[][COL_SIZE])
-{
-    for (int i = 0; i < ROW_SIZE; ++i)
-    {
-        cout << "|";
-        for (int j = 0; j < COL_SIZE; ++j)
-        {
-            cout << board[i][j];
 
-        }
-        cout << "|" << endl;
 
-    }
-}
-
-void initIndividualBoards(string *board, char boardA[ROW_SIZE][COL_SIZE], char boardB[ROW_SIZE][COL_SIZE])
+void initIndividualBoards(string *board, char **boardA, char **boardB)
 {
     char c;
     for (int i = 0; i < ROW_SIZE; ++i)
