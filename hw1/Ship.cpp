@@ -1,6 +1,3 @@
-//
-// Created by noamg on 06/04/2017.
-//
 
 #include "Ship.h"
 

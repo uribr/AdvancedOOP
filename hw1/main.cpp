@@ -6,11 +6,8 @@
 #include <set>
 #include <map>
 #include <vector>
-#include <string>
 #include <stdlib.h>
-#include <stdio.h>
 #include "Player.h"
-//#include <windows.h>
 
 using namespace std;
 
@@ -266,7 +263,7 @@ int main(int argc, char** argv) {
     initAttack(atkPathB, attackB);
 
 
-    //now we pass the individual boards and attack vectors to the players
+    //now we pass the individual boards, attack vectors and ship liststo the players
     A.setBoard((const char **)boardA, ROW_SIZE, COL_SIZE);
     A.initShipsList();
     A.setMoves(attackA);
@@ -276,6 +273,8 @@ int main(int argc, char** argv) {
 
     // Let the game begin!!!
     int currentPlayerNum = 0;
+    int scores[2] = {0};
+    char c;
     Player *pCurrentPlayer = &A;
     char **boardToAttack = boardB;
     std::pair<int,int> currentMove;
@@ -286,10 +285,16 @@ int main(int argc, char** argv) {
         currentMove = pCurrentPlayer->attack();
         //cout << playerName << ": (" << currentMove.first << "," << currentMove.second << ")" << endl;
 
-
-        if (boardToAttack[currentMove.first][currentMove.second] == WATER)
+        c = boardToAttack[currentMove.first][currentMove.second];
+        if (c == WATER)
         {
             //Miss
+        }
+        else // Hit
+        {
+
+
+
         }
 
 
