@@ -1,3 +1,4 @@
+#include <cctype>
 #include "Player.h"
 
 void Player::setBoard(const char **board, int numRows, int numCols)
@@ -27,9 +28,13 @@ void Player::notifyOnAttackResult(int player, int row, int col, AttackResult res
 
 void Player::setMoves(vector<pair<int, int>> moves)
 {
+    std::pair<int,int> move;
     for (int i = 0; i < moves.size(); ++i)
     {
-        this->movesQueue.push(moves[i]);
+        //remember moves are from 1 to ROW/COL SIZE while the board is from 0 to ROW/COL SIZE -1
+        // we assume that if we got here all the moves are valid
+        move = make_pair(moves[i].first-1, moves[i].second-1);
+        this->movesQueue.push(move);
     }
     moves.clear();
 }
@@ -51,5 +56,76 @@ char ** Player::getBoard()
         }
     }
     return retBoard;
+}
+
+bool Player::hasShips()
+{
+    return (this->shipsCount > 0);
+}
+
+
+eShipType getShipType(char c)
+{
+    switch (toupper(c))
+    {
+        case BOAT:
+            return eShipType::SHIP_TYPE_B;
+        case MISSLE_SHIP:
+            return eShipType::SHIP_TYPE_P;
+        case SUBMARINE:
+            return eShipType::SHIP_TYPE_M;
+        case DESTROYER:
+            return eShipType::SHIP_TYPE_D;
+        default: // should not get here
+            return eShipType::SHIP_TYPE_ERROR;
+    }
+}
+
+Ship handleShipDiscovery(int iOrig, int jOrig, char board[][COL_SIZE])
+{
+    int i = iOrig;
+    int j = jOrig;
+    int size = 0;
+
+    std::vector<std::pair<int,int>> coordinates;
+    char c = board[i][j];
+    // we will iterate only downwards or rightwards
+    do
+    {
+        coordinates.push_back(make_pair(i, j));
+        size++;
+    }
+    while(++i < ROW_SIZE && board[i][j] == c); // checking downwards
+    i = iOrig;
+    while (++j < COL_SIZE && board[i][j] == c) // checking rightwards
+    {
+        coordinates.push_back(make_pair(i, j));
+        size++;
+    }
+    eShipType type = getShipType(c);
+    return Ship(size, type, coordinates);
+}
+
+void Player::initShipsList()
+{
+    Ship ship;
+    char c;
+    for (int i = 0; i < ROW_SIZE; ++i)
+    {
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            c = this->board[i][j];
+            if (c != WATER)
+            {
+                if ((i > 0 && board[i-1][j] == c) || (j > 0 && board[i][j-1] == c)) // already encountered this ship
+                {
+                    continue;
+                }
+                ship = handleShipDiscovery(i,j, this->board);
+                this->shipsList.push_back(ship);
+            }
+        }
+    }
+
 }
 

@@ -4,17 +4,24 @@
 #include <queue>
 #include <vector>
 #include "IBattleshipGameAlgo.h"
+#include "Ship.h"
 
 using namespace std;
 
 #define ROW_SIZE 10
 #define COL_SIZE 10
+#define DEFAULT_SHIPS_COUNT 5
+#define HIT '*'
+#define SINK 'X'
+#define MISS 'O'
 
 class Player : IBattleshipGameAlgo
 {
     char board[ROW_SIZE][COL_SIZE] = {{0}};
     std::queue<std::pair<int, int>> movesQueue;
-    int ships = 0;
+    std::vector<Ship> shipsList;
+    int shipsCount = DEFAULT_SHIPS_COUNT; // number of living ships - starting from DEFAULT_SHIPS_COUNT
+    int score = 0;
 
 
 public:
@@ -23,7 +30,9 @@ public:
     virtual void notifyOnAttackResult(int player, int row, int col, AttackResult result) override; // notify on last move result
     void setMoves(vector<pair<int,int>> moves);
     char ** getBoard();
-    bool hasMoves();
+    bool hasMoves(); // checks if the player has more moves to play
+    bool hasShips(); // checks if the player has more living ships
+    void initShipsList();
 };
 
 

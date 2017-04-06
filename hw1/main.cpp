@@ -265,12 +265,43 @@ int main(int argc, char** argv) {
     initAttack(atkPathA, attackA);
     initAttack(atkPathB, attackB);
 
+
     //now we pass the individual boards and attack vectors to the players
-    //TODO - fix setBoard (Noam)
     A.setBoard((const char **)boardA, ROW_SIZE, COL_SIZE);
+    A.initShipsList();
     A.setMoves(attackA);
     B.setBoard((const char **)boardB, ROW_SIZE, COL_SIZE);
+    B.initShipsList();
     B.setMoves(attackB);
+
+    // Let the game begin!!!
+    int currentPlayerNum = 0;
+    Player *pCurrentPlayer = &A;
+    char **boardToAttack = boardB;
+    std::pair<int,int> currentMove;
+    bool gameIsOn = true;
+    //string playerName = "A";
+    while (gameIsOn)
+    {
+        currentMove = pCurrentPlayer->attack();
+        //cout << playerName << ": (" << currentMove.first << "," << currentMove.second << ")" << endl;
+
+
+        if (boardToAttack[currentMove.first][currentMove.second] == WATER)
+        {
+            //Miss
+        }
+
+
+
+
+        //switch current player...
+        pCurrentPlayer = currentPlayerNum ? &A : &B;
+        boardToAttack = currentPlayerNum ? boardB : boardA;
+        //playerName = currentPlayerNum ? "A" : "B";
+        currentPlayerNum = currentPlayerNum ? 0: 1;
+
+    }
 
 
 
@@ -294,12 +325,12 @@ int main(int argc, char** argv) {
         cout << attackA[i].first << "," << attackA[i].second << endl;
     }
      ------------------------------------------------------------------------- */
-    //TODO - delete this....
-    char **boardATest = A.getBoard();
-    char **boardBTest = B.getBoard();
-    printBoard((const char **)boardATest);
-    cout << endl;
-    printBoard((const char **)boardBTest);
+
+//    char **boardATest = A.getBoard();
+//    char **boardBTest = B.getBoard();
+//    printBoard((const char **)boardATest);
+//    cout << endl;
+//    printBoard((const char **)boardBTest);
 
     // delete local individual boards
     for (int i = 0; i < COL_SIZE; ++i)
@@ -328,18 +359,18 @@ void initIndividualBoards(string *board, char **boardA, char **boardB)
                 if (isupper(c)) // a ship of A
                 {
                     boardA[i][j] = c;
-                    boardB[i][j] = '-';
+                    boardB[i][j] = WATER;
                 }
                 else // a ship of B
                 {
-                    boardA[i][j] = '-';
+                    boardA[i][j] = WATER;
                     boardB[i][j] = c;
                 }
             }
             else // a space - update both boards
             {
-                boardA[i][j] = '-';
-                boardB[i][j] = '-';
+                boardA[i][j] = WATER;
+                boardB[i][j] = WATER;
             }
         }
     }
