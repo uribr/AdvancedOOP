@@ -1,7 +1,7 @@
 
 #include "Ship.h"
 
-Ship::Ship(int size, eShipType type, std::vector<std::pair<int, int>> coordinates)
+Ship::Ship(int size, eShipType type, std::map<std::pair<int,int>, bool> coordinates)
 {
     this->size = size;
     this->type = type;
@@ -14,7 +14,7 @@ void Ship::setType(eShipType type)
     this->type = type;
 }
 
-void Ship::setCoordinates(std::vector<std::pair<int, int>> coordinates)
+void Ship::setCoordinates(std::map<std::pair<int,int>, bool> coordinates)
 {
     this->coordinates = coordinates;
 }
@@ -29,7 +29,7 @@ eShipType Ship::getType()
     return this->type;
 }
 
-std::vector<std::pair<int, int>> Ship::getCoordinates()
+std::map<std::pair<int,int>, bool> Ship::getCoordinates()
 {
     return this->coordinates;
 }

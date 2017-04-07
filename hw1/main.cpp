@@ -268,14 +268,12 @@ int main(int argc, char** argv) {
         }
         //searchFiles(argv[1], atkPathA, atkPathB, boardPath);
     }
-    else if (argc == 2){
+    else
+    { // (argc >= 2) - ignore extra arguments for now...
         dirPath = argv[1];
         //searchFiles(dirPath, atkPathA, atkPathB, boardPath);
     }
-    else {
-        cout << "Error: Too many arguments" << endl;
-        return EXIT_FAILURE;
-    }
+
     // setting up the main board
     initBoard(boardPath, board);
     //setting up individual boards
@@ -296,14 +294,15 @@ int main(int argc, char** argv) {
     // Let the game begin!!!
     int attackerNum = 0;
 	int defenderNum = 1;
-    int scores[2] = {0};
-	int currentScore;
+    int currentScore;
+    int scores[2] = {0}; // index 0 = A, index 1 = B
 	Player *pPlayers[2] = { &A, &B };
 	std::pair<int, int> currentMove;
     char c;
 	//Player *pCurrentPlayer = &A;
     bool gameIsOn = true;
     string attackerName = "A";
+    // todo - delte all debug prints!!!!
     while (A.hasMoves() && B.hasMoves())
     {
         currentMove = pPlayers[attackerNum]->attack();
@@ -311,8 +310,6 @@ int main(int argc, char** argv) {
         // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
         cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
 		cout << "char shot: $" << c << "$" << endl;
-
-        
         if (c == WATER)
         {
             // Miss
@@ -339,7 +336,7 @@ int main(int argc, char** argv) {
             // here we handle the self hit scenario
             if (attackerNum != (isupper(c) ? 1 : 0)) // i.e the attacker didn't get points - self hit! switch player
             {
-                cout << "!!!SELF HIT - SWITCHING PLAYER!!!" << endl;
+                cout << "!!!SELF HIT - SWITCHING PLAYER!!!" << endl; // todo - delete this (debug)
                 attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
                 changeCurrentPlayer(&attackerNum, &defenderNum);
             }

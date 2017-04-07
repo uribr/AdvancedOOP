@@ -87,19 +87,19 @@ Ship handleShipDiscovery(int iOrig, int jOrig, char board[][COL_SIZE])
     int j = jOrig;
     int size = 0;
 
-    std::vector<std::pair<int,int>> coordinates;
+    std::map<std::pair<int,int>, bool> coordinates;
     char c = board[i][j];
     // we will iterate only downwards or rightwards
     do
     {
-        coordinates.push_back(make_pair(i, j));
+        coordinates[make_pair(i, j)] = true;
         size++;
     }
     while(++i < ROW_SIZE && board[i][j] == c); // checking downwards
     i = iOrig;
     while (++j < COL_SIZE && board[i][j] == c) // checking rightwards
     {
-        coordinates.push_back(make_pair(i, j));
+        coordinates[make_pair(i, j)] = true;
         size++;
     }
     eShipType type = getShipType(c);

@@ -6,6 +6,8 @@
 #define HW1_SHIP_H
 
 #include <vector>
+#include <map>
+
 #define BOAT 'B'
 #define MISSLE_SHIP 'P'
 #define SUBMARINE 'M'
@@ -29,17 +31,18 @@ enum class eShipType
 class Ship
 {
     int size;
-    std::vector<std::pair<int,int>> coordinates;
+    //  a map of coordinates = if <x,y> is true it means this coordinate was not hit
+    std::map<std::pair<int,int>, bool > coordinates;
     eShipType type;
 
 public:
-    Ship(int size, eShipType type, std::vector<std::pair<int, int>> coordinates);
+    Ship(int size, eShipType type, std::map<std::pair<int,int>, bool> coordinates);
     Ship();
     void setType(eShipType type);
-    void setCoordinates(std::vector<std::pair<int,int>> coordinates);
+    void setCoordinates(std::map<std::pair<int,int>, bool> coordinates);
     void setSize(int size);
     eShipType getType();
-    std::vector<std::pair<int,int>> getCoordinates();
+    std::map<std::pair<int,int>, bool> getCoordinates();
     int getSize();
     void handleHit();
     bool isAlive();
