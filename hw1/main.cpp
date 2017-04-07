@@ -219,7 +219,22 @@ void printBoard(const char **board)
     }
 }
 
-
+int getHitSCore(char c)
+{
+	switch (toupper(c))
+	{
+	case BOAT:
+		return BOAT_SCORE;
+	case MISSLE_SHIP:
+		return MISSLE_SHIP_SCORE;
+	case SUBMARINE:
+		return SUBMARINE_SCORE;
+	case DESTROYER:
+		return DESTROYER_SCORE;
+	default:
+		return -1;
+	}
+}
 int main(int argc, char** argv) {
     string dirPath;
     string atkPathA = "../input/clean_movesA.attack-a";
@@ -275,28 +290,44 @@ int main(int argc, char** argv) {
     B.setMoves(attackB);
 
     // Let the game begin!!!
-    int currentPlayerNum = 0;
+    int attackerNum = 0;
+	int defenderNum = 1;
     int scores[2] = {0};
+	int currentScore;
+	Player *pPlayers[2] = { &A, &B };
+	std::pair<int, int> currentMove;
     char c;
-    Player *pCurrentPlayer = &A;
-    char **boardToAttack = boardB;
-    std::pair<int,int> currentMove;
+	//Player *pCurrentPlayer = &A;
     bool gameIsOn = true;
-    //string playerName = "A";
-    while (gameIsOn)
+    string attackerName = "A";
+    while (A.hasMoves() && B.hasMoves())
     {
-        currentMove = pCurrentPlayer->attack();
-        //cout << playerName << ": (" << currentMove.first << "," << currentMove.second << ")" << endl;
+        currentMove = pPlayers[attackerNum]->attack();
+		c = board[currentMove.first][currentMove.second];
 
-        c = boardToAttack[currentMove.first][currentMove.second];
+        cout << attackerName << ": (" << currentMove.first << "," << currentMove.second << ")" << endl;
+		cout << "char shot: $" << c << "$" << endl;
+
+        
         if (c == WATER)
         {
+			cout << "It's water - no points" << endl;
             //Miss
         }
         else // Hit
         {
-
-
+			// calculate the score
+			currentScore = getHitSCore(c);
+			if (currentScore == -1)
+			{
+				cout << "Error: Unexpected char on board: " << c << endl;
+				return EXIT_FAILURE;
+			}
+			// if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
+			scores[(isupper(c) ? 1 : 0)] += currentScore;
+			cout << "It's a hit! given score is: " << currentScore << endl;
+			cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
+				
 
         }
 
@@ -304,10 +335,11 @@ int main(int argc, char** argv) {
 
 
         //switch current player...
-        pCurrentPlayer = currentPlayerNum ? &A : &B;
-        boardToAttack = currentPlayerNum ? boardB : boardA;
-        //playerName = currentPlayerNum ? "A" : "B";
-        currentPlayerNum = currentPlayerNum ? 0: 1;
+        //pCurrentPlayer = attackerNum ? &A : &B;
+        //boardToAttack = attackerNum ? boardB : boardA;
+        attackerName = attackerNum ? "A" : "B";
+        attackerNum = attackerNum ? 0: 1;
+		defenderNum = defenderNum ? 0 : 1;
 
     }
 

@@ -10,7 +10,12 @@
 #define MISSLE_SHIP 'P'
 #define SUBMARINE 'M'
 #define DESTROYER 'D'
-#define WATER '-'
+#define WATER ' '
+
+#define BOAT_SCORE 2
+#define MISSLE_SHIP_SCORE 3
+#define SUBMARINE_SCORE 7
+#define DESTROYER_SCORE 8
 
 enum class eShipType
 {
