@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#define MAX_PATH 260
+
 const int rows = 10;
 const int cols = 10;
 const int NUM_SHIPS = 5;
@@ -33,7 +35,7 @@ void initIndividualBoards(string *pString, char **a, char **boardB);
 
 string getDirPath() {
     char* buff = new char[MAX_PATH];
-    buff = getcwd(buff, MAX_PATH);
+    buff = _getcwd(buff, MAX_PATH);
     if (!buff) {
         return "!@#"; //signs the string is bad
     }
@@ -220,9 +222,10 @@ void printBoard(const char **board)
 
 int main(int argc, char** argv) {
     string dirPath;
-    string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
-    string atkPathB = "..\\hw1\\input\\clean_movesB.attack-b";
-    string boardPath = "..\\hw1\\input\\good_board_1.sboard";
+    string atkPathA = "../input/clean_movesA.attack-a";
+    string atkPathB = "../input/clean_movesB.attack-b";
+    string boardPath = "../input/good_board_1.sboard";
+	
     string* board = new string[rows];
     vector<pair<int,int>> attackA;
     vector<pair<int,int>> attackB;
@@ -263,7 +266,7 @@ int main(int argc, char** argv) {
     initAttack(atkPathB, attackB);
 
 
-    //now we pass the individual boards, attack vectors and ship liststo the players
+    //now we pass the individual boards, attack vectors and ship lists to the players
     A.setBoard((const char **)boardA, ROW_SIZE, COL_SIZE);
     A.initShipsList();
     A.setMoves(attackA);
