@@ -11,8 +11,6 @@
 
 using namespace std;
 
-#define MAX_PATH 260
-
 const int rows = 10;
 const int cols = 10;
 const int NUM_SHIPS = 5;
@@ -35,7 +33,7 @@ void initIndividualBoards(string *pString, char **a, char **boardB);
 
 string getDirPath() {
     char* buff = new char[MAX_PATH];
-    buff = _getcwd(buff, MAX_PATH);
+    buff = getcwd(buff, MAX_PATH);
     if (!buff) {
         return "!@#"; //signs the string is bad
     }
@@ -235,12 +233,18 @@ int getHitSCore(char c)
 		return -1;
 	}
 }
+
+void changeCurrentPlayer(int *attackerNum, int *defenderNum)
+{
+    *attackerNum = *attackerNum ? 0: 1;
+    *defenderNum = *defenderNum ? 0 : 1;
+}
+
 int main(int argc, char** argv) {
     string dirPath;
-    string atkPathA = "../input/clean_movesA.attack-a";
-    string atkPathB = "../input/clean_movesB.attack-b";
-    string boardPath = "../input/good_board_1.sboard";
-	
+    string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
+    string atkPathB = "..\\hw1\\input\\clean_movesB.attack-b";
+    string boardPath = "..\\hw1\\input\\good_board_1.sboard";
     string* board = new string[rows];
     vector<pair<int,int>> attackA;
     vector<pair<int,int>> attackB;
@@ -281,7 +285,7 @@ int main(int argc, char** argv) {
     initAttack(atkPathB, attackB);
 
 
-    //now we pass the individual boards, attack vectors and ship lists to the players
+    //now we pass the individual boards, attack vectors and ship liststo the players
     A.setBoard((const char **)boardA, ROW_SIZE, COL_SIZE);
     A.initShipsList();
     A.setMoves(attackA);
@@ -304,15 +308,18 @@ int main(int argc, char** argv) {
     {
         currentMove = pPlayers[attackerNum]->attack();
 		c = board[currentMove.first][currentMove.second];
-
-        cout << attackerName << ": (" << currentMove.first << "," << currentMove.second << ")" << endl;
+        // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
+        cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
 		cout << "char shot: $" << c << "$" << endl;
 
         
         if (c == WATER)
         {
-			cout << "It's water - no points" << endl;
-            //Miss
+            // Miss
+			cout << "It's water - no points - SWITCHING PLAYER" << endl;
+            // change player
+            attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+            changeCurrentPlayer(&attackerNum, &defenderNum);
         }
         else // Hit
         {
@@ -327,20 +334,16 @@ int main(int argc, char** argv) {
 			scores[(isupper(c) ? 1 : 0)] += currentScore;
 			cout << "It's a hit! given score is: " << currentScore << endl;
 			cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
-				
 
+            // if A hits B - A gets another turn. if A hits itself - it's B's turn (and vice versa)
+            // here we handle the self hit scenario
+            if (attackerNum != (isupper(c) ? 1 : 0)) // i.e the attacker didn't get points - self hit! switch player
+            {
+                cout << "!!!SELF HIT - SWITCHING PLAYER!!!" << endl;
+                attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+                changeCurrentPlayer(&attackerNum, &defenderNum);
+            }
         }
-
-
-
-
-        //switch current player...
-        //pCurrentPlayer = attackerNum ? &A : &B;
-        //boardToAttack = attackerNum ? boardB : boardA;
-        attackerName = attackerNum ? "A" : "B";
-        attackerNum = attackerNum ? 0: 1;
-		defenderNum = defenderNum ? 0 : 1;
-
     }
 
 
@@ -378,8 +381,9 @@ int main(int argc, char** argv) {
         delete boardA[i];
         delete boardB[i];
     }
-    delete boardA;
-    delete boardB;
+    delete[] boardA;
+    delete[] boardB;
+    delete[] board;
 
     return 0;
 }
