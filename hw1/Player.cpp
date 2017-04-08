@@ -126,6 +126,5 @@ void Player::initShipsList()
             }
         }
     }
-
 }
 
