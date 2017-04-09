@@ -312,6 +312,7 @@ void changeCurrentPlayer(int *attackerNum, int *defenderNum)
 
 int main(int argc, char** argv)
 {
+    //TODO - add some readl file loading
     string dirPath;
     string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
     string atkPathB = "..\\hw1\\input\\clean_movesB.attack-b";
@@ -456,11 +457,6 @@ int main(int argc, char** argv)
     }
     cout << "Points:\nPlayer A:" << scores[0] << "\nPlayer B:" << scores[1] << endl;
 
-    //Uri's Plan of Attack:
-    /* TODO Integrate Ben's changes
-     * TODO test test test test
-     * */
-
 
     /* ------------------------------ PRINT TESTS ------------------------------
     // Print board
@@ -488,6 +484,7 @@ int main(int argc, char** argv)
 //    cout << endl;
 //    printBoard((const char **)boardBTest);
 
+    //TODO - is there anything else that needs to be released/destroyed?
     // delete local individual boards
     for (int i = 0; i < COL_SIZE; ++i)
     {
