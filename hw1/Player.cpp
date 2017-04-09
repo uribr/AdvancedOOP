@@ -58,6 +58,22 @@ char ** Player::getBoard()
     return retBoard;
 }
 
+AttackResult Player::registerHit(std::pair<int,int> coords, eShipType shipType)
+{
+    for(int i = 0; i < DEFAULT_SHIPS_COUNT; i++)
+    {
+        if(this->shipsList[i].getType() == shipType)
+        {
+            //Make sure this coordinate belongs to this ship
+            if(this->shipsList[i].getCoordinates().find(coords) !=
+               this->shipsList[i].getCoordinates().end())
+            {
+                return this->shipsList[i].handleHit(coords);
+            }
+        }
+    }
+}
+
 bool Player::hasShips()
 {
     return (this->shipsCount > 0);

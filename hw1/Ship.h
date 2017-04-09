@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <map>
+#include "IBattleshipGameAlgo.h"
 
 #define BOAT 'B'
 #define MISSLE_SHIP 'P'
@@ -44,7 +45,7 @@ public:
     eShipType getType();
     std::map<std::pair<int,int>, bool> getCoordinates();
     int getSize();
-    void handleHit();
+    AttackResult handleHit(std::pair<int,int> coords); //Update the ships' status and return if it sank or just hit.
     bool isAlive();
 
 

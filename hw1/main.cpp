@@ -11,6 +11,8 @@
 
 using namespace std;
 
+#define MAX_PATH 1024
+
 const int rows = 10;
 const int cols = 10;
 const int NUM_SHIPS = 5;
@@ -33,6 +35,8 @@ void initIndividualBoards(string *pString, char **a, char **boardB);
 
 string getDirPath()
 {
+    //I defined MAX_PATH to be 1024 just to get rid of the error
+    //Might need TODO a change here
     char* buff = new char[MAX_PATH];
     buff = getcwd(buff, MAX_PATH);
     if (!buff)
@@ -266,6 +270,23 @@ void printBoard(const char **board)
     }
 }
 
+eShipType charToShipType(char c)
+{
+    switch (toupper(c))
+    {
+        case BOAT:
+            return eShipType::SHIP_TYPE_B;
+        case MISSLE_SHIP:
+            return eShipType::SHIP_TYPE_P;
+        case SUBMARINE:
+            return eShipType::SHIP_TYPE_M;
+        case DESTROYER:
+            return eShipType::SHIP_TYPE_D;
+        default:
+            return eShipType::SHIP_TYPE_ERROR;
+    }
+}
+
 int getHitSCore(char c)
 {
 	switch (toupper(c))
@@ -350,6 +371,7 @@ int main(int argc, char** argv)
 	Player *pPlayers[2] = { &A, &B };
 	std::pair<int, int> currentMove;
     char c;
+    AttackResult  res;
 	//Player *pCurrentPlayer = &A;
     bool gameIsOn = true;
     string attackerName = "A";
@@ -364,24 +386,34 @@ int main(int argc, char** argv)
         if (c == WATER)
         {
             // Miss
-			cout << "It's water - no points - SWITCHING PLAYER" << endl;
+			cout << "You can't fish with a cannonball, you blind landlubber! It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
             // change player
             attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
             changeCurrentPlayer(&attackerNum, &defenderNum);
         }
-        else // Hit
+        else // Hit or Sink
         {
-			// calculate the score
-			currentScore = getHitSCore(c);
-			if (currentScore == -1)
-			{
-				cout << "Error: Unexpected char on board: " << c << endl;
-				return EXIT_FAILURE;
-			}
-			// if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
-			scores[(isupper(c) ? 1 : 0)] += currentScore;
-			cout << "It's a hit! given score is: " << currentScore << endl;
-			cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
+            res = pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c));
+            if(res == AttackResult::Sink)
+            {
+                //Sink
+                // calculate the score
+                currentScore = getHitSCore(c);
+                if (currentScore == -1)
+                {
+                    cout << "Error: Unexpected char on board: " << c << endl;
+                    return EXIT_FAILURE;
+                }
+                // if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
+                scores[(isupper(c) ? 1 : 0)] += currentScore;
+                cout << "It's a hit! Ship has sank! Yarr!! : " << currentScore << endl;
+                cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
+            }
+            else
+            {
+                //Hit
+                cout << "It's a hit!  Yarr!! : " << currentScore << endl;
+            }
 
             // if A hits B - A gets another turn. if A hits itself - it's B's turn (and vice versa)
             // here we handle the self hit scenario
@@ -394,7 +426,13 @@ int main(int argc, char** argv)
         }
     }
 
-
+    //Uri's Plan of Attack:
+    /* TODO Fix "'pair::operator=(type)' is deleted" error
+     * TODO Add end game printing and such
+     * TODO test the new score keeping algo
+     * TODO Integrate Ben's changes
+     * TODO test test test test
+     * */
 
 
     /* ------------------------------ PRINT TESTS ------------------------------
