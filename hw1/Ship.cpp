@@ -17,7 +17,6 @@ void Ship::setType(eShipType type)
 void Ship::setCoordinates(std::map<std::pair<int,int>, bool> coordinates)
 {
     this->coordinates = coordinates;
-    std::map<std::pair<int,int>, bool>
 }
 
 void Ship::setSize(int size)
@@ -40,7 +39,7 @@ int Ship::getSize()
     return this->size;
 }
 
-AttackResult Ship::handleHit(std::pair<int,int> coords)
+void Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
 {
     // update only until size == 0 (don't allow negative size)
     if (this->coordinates[coords] == true)
@@ -51,16 +50,15 @@ AttackResult Ship::handleHit(std::pair<int,int> coords)
             this->size--;
             if (this->getSize() == 0)
             {
-                return AttackResult::Hit;
+                res = AttackResult::Sink;
             }
             else
             {
-                return AttackResult::Sink;
 
+                res = AttackResult::Hit;
             }
         }
     }
-
 }
 
 bool Ship::isAlive()

@@ -30,7 +30,7 @@ public:
     virtual void notifyOnAttackResult(int player, int row, int col, AttackResult result) override; // notify on last move result
     void setMoves(vector<pair<int,int>> moves);
     char ** getBoard();
-    AttackResult registerHit(std::pair<int,int> coords, eShipType shipType); //Updates the ship that got hit (or sank).
+    void registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res); //Updates the ship that got hit (or sank).
     bool hasMoves(); // checks if the player has more moves to play
     bool hasShips(); // checks if the player has more living ships
     void initShipsList();

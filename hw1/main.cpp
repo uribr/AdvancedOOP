@@ -366,34 +366,54 @@ int main(int argc, char** argv)
     // Let the game begin!!!
     int attackerNum = 0;
 	int defenderNum = 1;
-    int currentScore;
+    int currentScore = 0;
     int scores[2] = {0}; // index 0 = A, index 1 = B
 	Player *pPlayers[2] = { &A, &B };
-	std::pair<int, int> currentMove;
+
     char c;
-    AttackResult  res;
+    AttackResult res;
 	//Player *pCurrentPlayer = &A;
-    bool gameIsOn = true;
     string attackerName = "A";
     // todo - delte all debug prints!!!!
-    while (A.hasMoves() && B.hasMoves())
+    //The game goes on until one of the players has no more ships or both ran out of moves.
+    while (pPlayers[0]->hasShips() && pPlayers[1]->hasShips() && (pPlayers[0]->hasMoves() || pPlayers[1]->hasMoves()))
     {
-        currentMove = pPlayers[attackerNum]->attack();
-		c = board[currentMove.first][currentMove.second];
+        //Skip if current player is out of moves.
+        if (attackerNum == 1 && !pPlayers[1]->hasMoves())
+        {
+            cout << "Player B hsa ran out of moves - SWITCHING PLAYER" << endl;
+            attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+            changeCurrentPlayer(&attackerNum, &defenderNum);
+            continue;
+        }
+        else if (attackerNum == 0 && !pPlayers[0]->hasMoves())
+        {
+            cout << "Player A hsa ran out of moves - SWITCHING PLAYER" << endl;
+            attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+            changeCurrentPlayer(&attackerNum, &defenderNum);
+            continue;
+        }
+
+        std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
+		if(currentMove.first < 0 && currentMove.second < 0)
+        {
+            continue;
+        }
+        c = board[currentMove.first][currentMove.second];
         // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
         cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
 		cout << "char shot: $" << c << "$" << endl;
         if (c == WATER)
         {
             // Miss
-			cout << "You can't fish with a cannonball, you blind landlubber! It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
+			cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
             // change player
             attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
             changeCurrentPlayer(&attackerNum, &defenderNum);
         }
         else // Hit or Sink
         {
-            res = pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c));
+            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), res);
             if(res == AttackResult::Sink)
             {
                 //Sink
@@ -406,13 +426,13 @@ int main(int argc, char** argv)
                 }
                 // if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(c) ? 1 : 0)] += currentScore;
-                cout << "It's a hit! Ship has sank! Yarr!! : " << currentScore << endl;
+                cout << "It's a hit! The ship has sunk! Yarr!! : " << currentScore << endl;
                 cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
             }
             else
             {
                 //Hit
-                cout << "It's a hit!  Yarr!! : " << currentScore << endl;
+                cout << "It's a hit!  Yarr!!" << endl;
             }
 
             // if A hits B - A gets another turn. if A hits itself - it's B's turn (and vice versa)
@@ -426,11 +446,18 @@ int main(int argc, char** argv)
         }
     }
 
+    if(!pPlayers[0]->hasShips())
+    {
+        cout << "Player B won" << endl;
+    }
+    else if(!pPlayers[1]->hasShips())
+    {
+        cout << "Player A won" << endl;
+    }
+    cout << "Points:\nPlayer A:" << scores[0] << "\nPlayer B:" << scores[1] << endl;
+
     //Uri's Plan of Attack:
-    /* TODO Fix "'pair::operator=(type)' is deleted" error
-     * TODO Add end game printing and such
-     * TODO test the new score keeping algo
-     * TODO Integrate Ben's changes
+    /* TODO Integrate Ben's changes
      * TODO test test test test
      * */
 

@@ -1,6 +1,15 @@
 #include <cctype>
 #include "Player.h"
-
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <direct.h>
+#include <bitset>
+#include <set>
+#include <map>
+#include <vector>
+#include <stdlib.h>
+using namespace std;
 void Player::setBoard(const char **board, int numRows, int numCols)
 {
     for (int i = 0; i < numRows; ++i)
@@ -16,9 +25,14 @@ void Player::setBoard(const char **board, int numRows, int numCols)
 // get next attack from the player's moves queue
 std::pair<int, int> Player::attack()
 {
-    std::pair<int,int>& nextAttack = movesQueue.front();
-    movesQueue.pop();
-    return nextAttack;
+    if(movesQueue.size() > 0)
+    {
+        //std::cout << movesQueue.front().first << movesQueue.front().second << endl;
+        std::pair<int,int>& nextAttack(movesQueue.front());//= movesQueue.front();
+        movesQueue.pop();
+        return movesQueue.front();
+    }
+    return std::pair<int,int>(-1,-1);
 }
 
 void Player::notifyOnAttackResult(int player, int row, int col, AttackResult result)
@@ -28,14 +42,21 @@ void Player::notifyOnAttackResult(int player, int row, int col, AttackResult res
 
 void Player::setMoves(vector<pair<int, int>> moves)
 {
-    std::pair<int,int> move;
     for (int i = 0; i < moves.size(); ++i)
     {
         //remember moves are from 1 to ROW/COL SIZE while the board is from 0 to ROW/COL SIZE -1
         // we assume that if we got here all the moves are valid
-        move = make_pair(moves[i].first-1, moves[i].second-1);
+        std::pair<int,int> move = make_pair(moves[i].first-1, moves[i].second-1);
         this->movesQueue.push(move);
+        //cout << move.first << move.second << endl;
     }
+//    while(!movesQueue.empty())
+//    {
+//        std::pair<int,int>& curr = movesQueue.front();
+//        //cout << movesQueue.front().first << movesQueue.front().second << endl;
+//        cout << curr.first << curr.second << endl;
+//        movesQueue.pop();
+//    }
     moves.clear();
 }
 
@@ -58,7 +79,7 @@ char ** Player::getBoard()
     return retBoard;
 }
 
-AttackResult Player::registerHit(std::pair<int,int> coords, eShipType shipType)
+void Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res)
 {
     for(int i = 0; i < DEFAULT_SHIPS_COUNT; i++)
     {
@@ -68,7 +89,11 @@ AttackResult Player::registerHit(std::pair<int,int> coords, eShipType shipType)
             if(this->shipsList[i].getCoordinates().find(coords) !=
                this->shipsList[i].getCoordinates().end())
             {
-                return this->shipsList[i].handleHit(coords);
+                this->shipsList[i].handleHit(coords, res);
+                if(res == AttackResult::Sink)
+                {
+                    this->shipsCount--;
+                }
             }
         }
     }

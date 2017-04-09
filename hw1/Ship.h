@@ -45,7 +45,7 @@ public:
     eShipType getType();
     std::map<std::pair<int,int>, bool> getCoordinates();
     int getSize();
-    AttackResult handleHit(std::pair<int,int> coords); //Update the ships' status and return if it sank or just hit.
+    void handleHit(std::pair<int,int> coords, AttackResult& res); //Update the ships' status and return if it sank or just hit.
     bool isAlive();
 
 
