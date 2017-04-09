@@ -1,25 +1,15 @@
-### YOU SHOULD EDIT THE BELOW WITH YOUR DETAILS AND FILES ###
-
 set(user1 benohayon)
 set(user2 uribracha)
 set(user3 noamgottlieb)
 set(id1 "304848518")
 set(id2 "313296550")
 set(id3 "201606951")
-
-cmake_minimum_required(VERSION 3.6)
-
-set(CMAKE_CXX_STANDARD 11)
-
 set (SOURCE_FILES
-	hw1/IBattleshipGameAlgo.h
-	hw1/Player.h
-	hw1/Ship.h
-	hw1/Player.cpp
-	hw1/Ship.cpp
-	hw1/main.cpp
-)
-add_executable(hw1 ${SOURCE_FILES})
+		file1.h
+		file1.cpp
+		file2.h
+		file2.cpp
+		)
 
 ### DO NOT CHANGE FROM HERE ON ###
 
