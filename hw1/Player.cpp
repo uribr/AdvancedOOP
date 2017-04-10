@@ -61,24 +61,26 @@ char ** Player::getBoard()
     return retBoard;
 }
 
-void Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res)
+bool Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res)
 {
-    for(int i = 0; i < DEFAULT_SHIPS_COUNT; i++)
+    int i = 0;
+    for(; i < DEFAULT_SHIPS_COUNT; i++)
     {
         if(this->shipsList[i].getType() == shipType)
         {
             //Make sure this coordinate belongs to this ship
-            if(this->shipsList[i].getCoordinates().find(coords) !=
-               this->shipsList[i].getCoordinates().end())
+            if(this->shipsList[i].getCoordinates().count(coords) == 1)
             {
                 this->shipsList[i].handleHit(coords, res);
                 if(res == AttackResult::Sink)
                 {
                     this->shipsCount--;
                 }
+                break;
             }
         }
     }
+    return this->shipsList[i].isAlive();
 }
 
 bool Player::hasShips()

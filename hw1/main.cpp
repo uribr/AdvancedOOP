@@ -460,6 +460,14 @@ int main(int argc, char** argv)
 
         // should always pass this check - it's for debug purposes
         std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
+        if(currentMove.first == 1 && currentMove.second == 2)
+        {
+            cout << "Cheers love, the chavelry's here!" << endl;
+        }
+        if(currentMove.first == 1 && currentMove.second == 3)
+        {
+            cout << "Cheers love, the chavelry's here!" << endl;
+        }
         if (currentMove.first < 0 || currentMove.first >= ROW_SIZE ||
                 currentMove.second < 0 || currentMove.second >= COL_SIZE )
         {
@@ -476,14 +484,12 @@ int main(int argc, char** argv)
         {
             // Miss
 			cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
-            // change player
-            attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
-            changeCurrentPlayer(&attackerNum, &defenderNum);
         }
-        else // Hit or Sink
+        else // Hit xor Sink xor double hit xor hit a sunken ship
         {
             pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), res);
-            if(res == AttackResult::Sink)
+
+            if (res == AttackResult::Sink)
             {
                 //Sink
                 // calculate the score
@@ -495,24 +501,24 @@ int main(int argc, char** argv)
                 }
                 // if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(c) ? 1 : 0)] += currentScore;
-                cout << "It's a hit! The ship has sunk! Yarr!! : " << currentScore << endl;
+                cout << "It's a hit! The ship has sunk! Yarr!!" << endl;
                 cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
+                continue;
+            }
+            else if (res == AttackResult::Hit)
+            {
+                //Hit xor self hit
+                cout << "It's a" << (!isupper(c)  == attackerNum ? "self" : "") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
+                continue;
             }
             else
             {
-                //Hit
-                cout << "It's a hit!  Yarr!!" << endl;
-            }
-
-            // if A hits B - A gets another turn. if A hits itself - it's B's turn (and vice versa)
-            // here we handle the self hit scenario
-            if (attackerNum != (isupper(c) ? 1 : 0)) // i.e the attacker didn't get points - self hit! switch player
-            {
-                cout << "!!!SELF HIT - SWITCHING PLAYER!!!" << endl; // todo - delete this (debug)
-                attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
-                changeCurrentPlayer(&attackerNum, &defenderNum);
+                cout << "Double hit or hit a sunken ship - SWITCHING PLAYER" << endl;
             }
         }
+        //Change player
+        attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+        changeCurrentPlayer(&attackerNum, &defenderNum);
     }
 
     if(!pPlayers[0]->hasShips())
