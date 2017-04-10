@@ -1,14 +1,5 @@
 #include <cctype>
 #include "Player.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <direct.h>
-#include <bitset>
-#include <set>
-#include <map>
-#include <vector>
-#include <stdlib.h>
 using namespace std;
 void Player::setBoard(const char **board, int numRows, int numCols)
 {
@@ -27,10 +18,9 @@ std::pair<int, int> Player::attack()
 {
     if(movesQueue.size() > 0)
     {
-        //std::cout << movesQueue.front().first << movesQueue.front().second << endl;
         std::pair<int,int>& nextAttack(movesQueue.front());//= movesQueue.front();
         movesQueue.pop();
-        return movesQueue.front();
+        return nextAttack;
     }
     return std::pair<int,int>(-1,-1);
 }
@@ -48,15 +38,7 @@ void Player::setMoves(vector<pair<int, int>> moves)
         // we assume that if we got here all the moves are valid
         std::pair<int,int> move = make_pair(moves[i].first-1, moves[i].second-1);
         this->movesQueue.push(move);
-        //cout << move.first << move.second << endl;
     }
-//    while(!movesQueue.empty())
-//    {
-//        std::pair<int,int>& curr = movesQueue.front();
-//        //cout << movesQueue.front().first << movesQueue.front().second << endl;
-//        cout << curr.first << curr.second << endl;
-//        movesQueue.pop();
-//    }
     moves.clear();
 }
 

@@ -48,7 +48,7 @@ void Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
         if (this->size > 0)
         {
             this->size--;
-            if (this->getSize() == 0)
+            if (!isAlive())
             {
                 res = AttackResult::Sink;
             }

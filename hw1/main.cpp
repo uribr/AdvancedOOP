@@ -27,11 +27,13 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
     string aSuffix(".attack-a");
     string bSuffix(".attack-b");
     string sysDIR("dir \"" + dirPath + "\" /b /a-d > file_names.txt 2>&1");
+    //According to the forum this is how it should be written:
+    //string sysDir("2>NUL /a-d /b" + dirPath " > file_names.txt")
     const char* sysDIRc = sysDIR.c_str();
     string line;
-    int lineSize;
-    int pos;
-    int ret = 0;
+    unsigned long long lineSize;
+    unsigned long long  pos;
+    int  ret = 0;
 
     system(sysDIRc);
     ifstream filenames("file_names.txt");
@@ -225,8 +227,6 @@ int checkBoardValidity(string* board)
         }
     }
 
-    cout << shipCountA << endl;
-    cout << shipCountB << endl;
     // Print possible errors
     for (int i = 0; i < 4; i++)
     {
@@ -288,7 +288,6 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
         x = -1;
         y = -1;
         stringstream lineStream(line);
-//TODO neshama ever heard of parenthesis? I added some parenthesis for readability purposes
         lineStream >> y;                                    //read y coor
         if (y < 1 || y > rows)
         {
@@ -372,9 +371,9 @@ int main(int argc, char** argv)
 {
     //TODO - add some readl file loading
     string dirPath;
-    string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
-    string atkPathB = "..\\hw1\\input\\clean_movesB.attack-b";
-    string boardPath = "..\\hw1\\input\\good_board_1.sboard";
+    string atkPathA;
+    string atkPathB;
+    string boardPath;
     string* board = new string[rows];
     vector<pair<int,int>> attackA;
     vector<pair<int,int>> attackB;
@@ -467,10 +466,10 @@ int main(int argc, char** argv)
         }
 
         std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
-		if(currentMove.first < 0 && currentMove.second < 0)
-        {
-            continue;
-        }
+//        if(currentMove.first < 0 && currentMove.second < 0)
+//        {
+//            continue;
+//        }
         c = board[currentMove.first][currentMove.second];
         // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
         cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
