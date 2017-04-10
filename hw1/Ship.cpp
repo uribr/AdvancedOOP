@@ -42,21 +42,23 @@ int Ship::getSize()
 void Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
 {
     // update only until size == 0 (don't allow negative size)
-    if (this->coordinates[coords] == true)
+    if (this->coordinates[coords] == true && this->isAlive())
     {
         this->coordinates[coords] = false;
-        if (this->size > 0)
+        this->setSize(this->getSize()-1);
+        if (isAlive())
         {
-            this->size--;
-            if (this->size == 0)
-            {
-                res = AttackResult::Sink;
-            }
-            else
-            {
-                res = AttackResult::Hit;
-            }
+            res = AttackResult::Hit;
         }
+        else
+        {
+            res = AttackResult::Sink;
+        }
+
+    }
+    else
+    {
+        res = AttackResult::Miss;
     }
 }
 

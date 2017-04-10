@@ -1,14 +1,5 @@
 #include <cctype>
 #include "Player.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <direct.h>
-#include <bitset>
-#include <set>
-#include <map>
-#include <vector>
-#include <stdlib.h>
 using namespace std;
 void Player::setBoard(const char **board, int numRows, int numCols)
 {
@@ -47,15 +38,7 @@ void Player::setMoves(vector<pair<int, int>> moves)
         // we assume that if we got here all the moves are valid
         std::pair<int,int> move = make_pair(moves[i].first-1, moves[i].second-1);
         this->movesQueue.push(move);
-        //cout << move.first << move.second << endl;
     }
-//    while(!movesQueue.empty())
-//    {
-//        std::pair<int,int>& curr = movesQueue.front();
-//        //cout << movesQueue.front().first << movesQueue.front().second << endl;
-//        cout << curr.first << curr.second << endl;
-//        movesQueue.pop();
-//    }
     moves.clear();
 }
 
@@ -78,24 +61,26 @@ char ** Player::getBoard()
     return retBoard;
 }
 
-void Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res)
+bool Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res)
 {
-    for(int i = 0; i < DEFAULT_SHIPS_COUNT; i++)
+    int i = 0;
+    for(; i < DEFAULT_SHIPS_COUNT; i++)
     {
         if(this->shipsList[i].getType() == shipType)
         {
             //Make sure this coordinate belongs to this ship
-            if(this->shipsList[i].getCoordinates().find(coords) !=
-               this->shipsList[i].getCoordinates().end())
+            if(this->shipsList[i].getCoordinates().count(coords) == 1)
             {
                 this->shipsList[i].handleHit(coords, res);
                 if(res == AttackResult::Sink)
                 {
                     this->shipsCount--;
                 }
+                break;
             }
         }
     }
+    return this->shipsList[i].isAlive();
 }
 
 bool Player::hasShips()
