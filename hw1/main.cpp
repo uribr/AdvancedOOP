@@ -31,8 +31,8 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
     //string sysDir("2>NUL /a-d /b" + dirPath " > file_names.txt")
     const char* sysDIRc = sysDIR.c_str();
     string line;
-    unsigned long long lineSize;
-    unsigned long long  pos;
+    int lineSize;
+    int  pos;
     int  ret = 0;
 
     system(sysDIRc);
