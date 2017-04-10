@@ -225,8 +225,8 @@ int checkBoardValidity(string* board)
         }
     }
 
-    cout << shipCountA << endl;
-    cout << shipCountB << endl;
+    cout << "Player A has " << shipCountA << " ships" <<endl;
+    cout << "Player B has " << shipCountB << " ships" << endl;
     // Print possible errors
     for (int i = 0; i < 4; i++)
     {
@@ -345,7 +345,7 @@ eShipType charToShipType(char c)
     }
 }
 
-int getHitSCore(char c)
+int charToSinkSCore(char c)
 {
 	switch (toupper(c))
 	{
@@ -372,9 +372,9 @@ int main(int argc, char** argv)
 {
     //TODO - add some readl file loading
     string dirPath;
-    string atkPathA = "..\\hw1\\input\\clean_movesA.attack-a";
-    string atkPathB = "..\\hw1\\input\\clean_movesB.attack-b";
-    string boardPath = "..\\hw1\\input\\good_board_1.sboard";
+    string atkPathA;
+    string atkPathB;
+    string boardPath;
     string* board = new string[rows];
     vector<pair<int,int>> attackA;
     vector<pair<int,int>> attackB;
@@ -451,26 +451,24 @@ int main(int argc, char** argv)
     while (pPlayers[0]->hasShips() && pPlayers[1]->hasShips() && (pPlayers[0]->hasMoves() || pPlayers[1]->hasMoves()))
     {
         //Skip if current player is out of moves.
-        if (attackerNum == 1 && !pPlayers[1]->hasMoves())
+        if (!pPlayers[attackerNum]->hasMoves())
         {
-            cout << "Player B hsa ran out of moves - SWITCHING PLAYER" << endl;
-            attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
-            changeCurrentPlayer(&attackerNum, &defenderNum);
-            continue;
-        }
-        else if (attackerNum == 0 && !pPlayers[0]->hasMoves())
-        {
-            cout << "Player A hsa ran out of moves - SWITCHING PLAYER" << endl;
+            cout << "Player " << attackerName << " has ran out of moves - SWITCHING PLAYER" << endl;
             attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
             changeCurrentPlayer(&attackerNum, &defenderNum);
             continue;
         }
 
+        // should always pass this check - it's for debug purposes
         std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
-		if(currentMove.first < 0 && currentMove.second < 0)
+        if (currentMove.first < 0 || currentMove.first >= ROW_SIZE ||
+                currentMove.second < 0 || currentMove.second >= COL_SIZE )
         {
-            continue;
+            cout << "Error: Invalid move from player " << attackerName << " - (" << currentMove.first << ","
+                 << currentMove.second << ")" << endl;
+            return EXIT_FAILURE;
         }
+
         c = board[currentMove.first][currentMove.second];
         // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
         cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
@@ -490,7 +488,7 @@ int main(int argc, char** argv)
             {
                 //Sink
                 // calculate the score
-                currentScore = getHitSCore(c);
+                currentScore = charToSinkSCore(c);
                 if (currentScore == -1)
                 {
                     cout << "Error: Unexpected char on board: " << c << endl;

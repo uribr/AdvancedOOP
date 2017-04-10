@@ -27,12 +27,11 @@ std::pair<int, int> Player::attack()
 {
     if(movesQueue.size() > 0)
     {
-        //std::cout << movesQueue.front().first << movesQueue.front().second << endl;
         std::pair<int,int>& nextAttack(movesQueue.front());//= movesQueue.front();
         movesQueue.pop();
-        return movesQueue.front();
+        return nextAttack;
     }
-    return std::pair<int,int>(-1,-1);
+    return make_pair(-1,-1);
 }
 
 void Player::notifyOnAttackResult(int player, int row, int col, AttackResult result)
