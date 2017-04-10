@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <stdlib.h>
+#include "inputUtilities.h"
 #include "Player.h"
 #include "Bonus.h"
 
@@ -16,304 +17,8 @@ using namespace std;
 #define PARAM_QUIET "-quiet"
 #define PARAM_DELAY "-delay"
 
-const int rows = 10;
-const int cols = 10;
-const int NUM_SHIPS = 5;
-
-/* Searches the current working directory for the game configuration files:
- * .sboard -> boardPath
- * .attack-a -> atkPathA
- * .attack-b -> atkPathB */
-int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string& boardPath)
-{
-    string boardSuffix(".sboard");
-    string aSuffix(".attack-a");
-    string bSuffix(".attack-b");
-    string sysDIR("dir \"" + dirPath + "\" /b /a-d > file_names.txt 2>&1");
-    const char* sysDIRc = sysDIR.c_str();
-    string line;
-    int lineSize;
-    int pos;
-    int ret = 0;
-
-    system(sysDIRc);
-    ifstream filenames("file_names.txt");
-    while (getline(filenames, line))
-    {
-        if (line == "File Not Found")
-        {
-            cout << "Wrong Path " << dirPath << endl;
-            filenames.close();
-            return -1;
-        }
-        lineSize = line.length();
-
-        pos = line.rfind(boardSuffix);
-        if ((boardPath == "") && (pos != -1) && (pos == lineSize-boardSuffix.length()))
-        {
-            boardPath = line;
-        }
-
-        pos = line.rfind(aSuffix);
-        if ((atkPathA == "") && (pos != -1) && (pos == lineSize-aSuffix.length()))
-        {
-            atkPathA = line;
-        }
-
-        pos = line.rfind(bSuffix);
-        if ((atkPathB == "") && (pos != -1) && (pos == lineSize-bSuffix.length()))
-        {
-            atkPathB = line;
-        }
-    }
-
-    if (boardPath == "")
-    {
-        cout << "Missing board file (*.sboard) looking in path: " << dirPath << endl;
-        ret = -1;
-    }
-    if (atkPathA == "")
-    {
-        cout << "Missing attack file for player A (*.attack-a) looking in path: " << dirPath << endl;
-        ret = -1;
-    }
-    if (atkPathB == "")
-    {
-        cout << "Missing attack file for player B (*.attack-b) looking in path: " << dirPath << endl;
-        ret = -1;
-    }
-    filenames.close();
-    return ret;
-}
 
 void initIndividualBoards(string *pString, char **a, char **boardB);
-
-string getDirPath()
-{
-    //I defined MAX_PATH to be 1024 just to get rid of the error
-    //Might need TODO a change here
-    char* buff = new char[MAX_PATH];
-    buff = getcwd(buff, MAX_PATH);
-    if (!buff)
-    {
-        return "!@#"; //signs the string is bad
-    }
-    string temp(buff);
-    delete[] buff;
-    return temp;
-}
-
-/* Initializes the battle board according to the .sboard file in boardPath.
- * results in a rows*cols board inside passed board arg */
-void initBoard(const string boardPath, string* board)
-{
-    ifstream boardFile(boardPath);
-    char chars[9] = {' ','B','P','M','D','b','p','m','d'};
-    set<char> charSet;
-    charSet.insert(chars, chars+9);
-
-    for (int i = 0; i < rows; i++)
-    {
-        getline(boardFile, board[i]);
-        if (board[i].back() == '\r') board[i].back() = ' '; // handles '\r'
-        if (board[i].length() > cols)
-        {                     // ignores extra characters in line
-            board[i].erase(cols, board[i].length()-cols);
-        }
-        else if (board[i].length() < cols)
-        {                // appends extra '_' in case of a short line
-            board[i].append(cols-board[i].length(), ' ');
-        }
-        if (boardFile.eof() && i < rows-1)
-        {                // inserts extra rows of '_' in case of missing lines
-            i++;
-            for (; i < rows; i++)
-            {
-                board[i] = string(cols, ' ');
-            }
-        }
-    }
-    for (int i = 0; i < rows; i++)
-    {                        // convert non-valid characters to spaces
-        for (int j = 0; j < cols; j++)
-        {
-            if (charSet.find(board[i][j]) == charSet.end()) board[i][j] = ' ';
-        }
-    }
-    boardFile.close();
-}
-
-int checkShape(string* board, const int size, int i, int j)
-{
-    int verL = 1, horL = 1;
-    // run horizontally, check above and below
-    while (j+horL < cols && board[i][j] == board[i][j+horL])
-    {
-        if ((i+1 < rows && board[i][j] == board[i+1][j+horL]) ||
-            (i-1 >= 0 && board[i][j] == board[i-1][j+horL]))
-        {
-            return -1;
-        }
-        horL++;
-    }
-    // run vertically, check right and left
-    while (i+verL < rows && board[i][j] == board[i+verL][j])
-    {
-        if ((j+1 < cols && board[i][j] == board[i+verL][j+1]) ||
-            (j-1 >= 0 && board[i][j] == board[i+verL][j-1]))
-        {
-            return -1;
-        }
-        verL++;
-    }
-    // check for misshape in size
-    if ((horL > 1 && verL > 1) || (horL != size && verL != size))
-    {
-        return -1;
-    }
-    return 1;
-}
-
-/* Checks if the battle board is valid */
-int checkBoardValidity(string* board)
-{
-    int shipCountA = 0, shipCountB = 0, isShipA = 0, isShipB = 0, adjCheck = 0, ret = 0;
-    map<char,int> shipsA = {{'B',1},{'P',2},{'M',3},{'D',4}};
-    map<char,int> shipsB = {{'b',1},{'p',2},{'m',3},{'d',4}};
-    char shipMapA[4] = {'B','P','M','D'};
-    char shipMapB[4] = {'b','p','m','d'};
-    bitset<4> errShipsA;                                    // error flags for ship misshapes
-    bitset<4> errShipsB;
-
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            if (board[i][j] != ' ')
-            {
-                isShipA = (shipsA[board[i][j]] != 0);       // 1 if its A ship, otherwise 0
-                isShipB = (shipsB[board[i][j]] != 0);
-                if (isShipA || isShipB)
-                {
-                    // check if its new
-                    if (!((i != 0 && board[i - 1][j] == board[i][j]) ||
-                          (j != 0 && board[i][j - 1] == board[i][j])))
-                    {
-                        // check for misshape
-                        if (checkShape(board, shipsB[tolower(board[i][j])], i, j) < 0)
-                        {
-                            if (isShipA)
-                            {
-                                errShipsA[shipsA[board[i][j]] - 1] = 1;
-                            }
-                            if (isShipB)
-                            {
-                                errShipsB[shipsB[board[i][j]] - 1] = 1;
-                            }
-                        }
-                        else
-                        {
-                            shipCountA += isShipA;
-                            shipCountB += isShipB;
-                        }
-                    }
-                    // Check if any adjacent ships exist
-                    if (((j != 0) && (board[i][j - 1] != board[i][j]) && (board[i][j - 1] != ' ')) ||
-                        ((i != 0) && (board[i - 1][j] != board[i][j]) && (board[i - 1][j] != ' ')))
-                    {
-                        adjCheck = 1;
-                    }
-                }
-            }
-        }
-    }
-
-    //cout << "Player A has " << shipCountA << " ships" <<endl;
-    //cout << "Player B has " << shipCountB << " ships" << endl;
-    // Print possible errors
-    for (int i = 0; i < 4; i++)
-    {
-        if (errShipsA[i])
-        {
-            cout << "Wrong size or shape for ship " << shipMapA[i] << " for player A" << endl;
-            ret = -1;
-        }
-    }
-    for (int i = 0; i < 4; i++)
-    {
-        if (errShipsB[i]) {
-            cout << "Wrong size or shape for ship " << shipMapB[i] << " for player B" << endl;
-            ret = -1;
-        }
-    }
-    if (shipCountA > NUM_SHIPS)
-    {
-        cout << "Too many ships for Player A" << endl;
-        ret = -1;
-    }
-    else if (shipCountA < NUM_SHIPS)
-    {
-        cout << "Too few ships for Player A" << endl;
-        ret = -1;
-    }
-    if (shipCountB > NUM_SHIPS)
-    {
-        cout << "Too many ships for Player B" << endl;
-        ret = -1;
-    }
-    else if (shipCountB < NUM_SHIPS)
-    {
-        cout << "Too few ships for Player B" << endl;
-        ret = -1;
-    }
-    if (adjCheck)
-    {
-        cout << "Adjacent Ships on Board" << endl;
-        ret = -1;
-    }
-    return ret;
-}
-
-/* Fills the attacks vector with the attack moves inside the .attack-a/b file located at atkPath */
-void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
-{
-    string line;
-    char nextChr;
-    int x = -1, y = -1;
-    ifstream atkFile(atkPath);
-
-    while(getline(atkFile, line))
-    {
-        if (line . back() == '\r')
-        {
-            line . back() = ' ';
-        }
-        x = -1;
-        y = -1;
-        stringstream lineStream(line);
-        lineStream >> y;                                    //read y coor
-        if (y < 1 || y > rows)
-        {
-            continue;
-        }
-
-        while (lineStream >> nextChr && nextChr == ' '){} //seek comma
-
-        if (lineStream . eof() || nextChr != ',')
-        {
-            continue;
-        }
-
-        lineStream >> x;                                    //read x coor
-        if (x < 1 || x > cols)
-        {
-            continue;
-        }
-
-        attacks.push_back(make_pair(y,x));
-    }
-    atkFile.close();
-}
 
 void printBoard(const char **board)
 {
@@ -377,7 +82,7 @@ int main(int argc, char** argv)
     string atkPathA;
     string atkPathB;
     string boardPath;
-    string* board = new string[rows];
+    string* board = new string[ROW_SIZE];
     vector<pair<int,int>> attackA;
     vector<pair<int,int>> attackB;
     Player A;
@@ -435,11 +140,8 @@ int main(int argc, char** argv)
                     }
                     sleepTime = (DWORD)delay;
 
-
                 }
             }
-
-
         }
     }
 
@@ -488,7 +190,6 @@ int main(int argc, char** argv)
                 c = board[j][k];
                 setTextColor(isupper(c) ? COLOR_GREEN : COLOR_YELLOW);
                 cout << c;
-
             }
             cout << endl;
         }
