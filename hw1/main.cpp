@@ -480,9 +480,6 @@ int main(int argc, char** argv)
         else // Hit xor Sink xor double hit xor hit a sunken ship
         {
             pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
-
-            if (attackResult == AttackResult::Sink)
-            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
             B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
