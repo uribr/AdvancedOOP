@@ -85,13 +85,6 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
 
 void initIndividualBoards(string *pString, char **a, char **boardB);
 
-/*string getDirPath() { // uses windows.h
-    char buff[MAX_PATH];
-    GetModuleFileName(NULL, buff, MAX_PATH); // inserts the executable path into buff
-    string tempStr = string(buff);
-    return tempStr.substr(0, tempStr.find_last_of("/\\",tempStr.length()-1));
-}*/
-
 string getDirPath()
 {
     //I defined MAX_PATH to be 1024 just to get rid of the error
@@ -178,9 +171,7 @@ int checkShape(string* board, const int size, int i, int j)
     return 1;
 }
 
-/* Checks if the battle board is valid
- * TODO: Eliminate misshapes on the first board iteration
- * */
+/* Checks if the battle board is valid */
 int checkBoardValidity(string* board)
 {
     int shipCountA = 0, shipCountB = 0, isShipA = 0, isShipB = 0, adjCheck = 0, ret = 0;
@@ -398,7 +389,6 @@ int main(int argc, char** argv)
         boardB[i] = new char[COL_SIZE];
     }
 
-    /* File search is functional. Commented out for testing
     if (argc == 1)
     {
         dirPath = getDirPath();
@@ -422,10 +412,15 @@ int main(int argc, char** argv)
         boardPath = dirPath + "/" + boardPath;
         atkPathA = dirPath + "/" + atkPathA;
         atkPathB = dirPath + "/" + atkPathB;
-    } */
+    }
 
     // setting up the main board
     initBoard(boardPath, board);
+    // checking board validity
+    if (checkBoardValidity(board) < 0)
+    {
+        return -1;
+    }
     //setting up individual boards
     initIndividualBoards(board,boardA,boardB);
     // setting up attack vectors
