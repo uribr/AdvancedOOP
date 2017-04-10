@@ -8,6 +8,7 @@
 #include <vector>
 #include <stdlib.h>
 #include "Player.h"
+#include "Bonus.h"
 
 using namespace std;
 
@@ -225,8 +226,8 @@ int checkBoardValidity(string* board)
         }
     }
 
-    cout << "Player A has " << shipCountA << " ships" <<endl;
-    cout << "Player B has " << shipCountB << " ships" << endl;
+    //cout << "Player A has " << shipCountA << " ships" <<endl;
+    //cout << "Player B has " << shipCountB << " ships" << endl;
     // Print possible errors
     for (int i = 0; i < 4; i++)
     {
@@ -369,6 +370,8 @@ void changeCurrentPlayer(int *attackerNum, int *defenderNum)
 
 int main(int argc, char** argv)
 {
+    POINT p;
+
     //TODO - add some readl file loading
     string dirPath;
     string atkPathA;
@@ -446,6 +449,12 @@ int main(int argc, char** argv)
     //Player *pCurrentPlayer = &A;
     string attackerName = "A";
     // todo - delte all debug prints!!!!
+
+    //print board
+    for (int j = 0; j < COL_SIZE; ++j)
+    {
+        cout << board[j] << endl;;
+    }
     //The game goes on until one of the players has no more ships or both ran out of moves.
     while (pPlayers[0]->hasShips() && pPlayers[1]->hasShips() && (pPlayers[0]->hasMoves() || pPlayers[1]->hasMoves()))
     {
@@ -505,7 +514,7 @@ int main(int argc, char** argv)
             else if (attackResult == AttackResult::Hit)
             {
                 //Hit xor self hit
-                cout << "It's a" << (!isupper(c)  == attackerNum ? "self" : "") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
+                cout << "It's a" << (!isupper(c)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
                 continue;
             }
             else

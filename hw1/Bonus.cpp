@@ -1,4 +1,4 @@
-#include "BonusLib.h"
+#include "Bonus.h"
 
 
 void gotoxy(int x, int y)

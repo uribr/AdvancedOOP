@@ -3,6 +3,8 @@
 
 #include <windows.h>
 
+#define DEFAULT_SLEEP_TIME 1000 //milliseconds
+
 typedef enum _eColor
 {
     COLOR_DEFAULT_WHITE = 7,

@@ -9,5 +9,5 @@ set(SOURCE_FILES
         hw1/Player.cpp
         hw1/main.cpp
         hw1/Ship.h
-        hw1/Ship.cpp hw1/BonusLib.h hw1/BonusLib.cpp)
+        hw1/Ship.cpp hw1/Bonus.h hw1/Bonus.cpp)
 add_executable(hw1 ${SOURCE_FILES})
