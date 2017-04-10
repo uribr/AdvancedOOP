@@ -13,7 +13,6 @@
 
 using namespace std;
 
-#define MAX_PATH 1024
 #define PARAM_QUIET "-quiet"
 #define PARAM_DELAY "-delay"
 
@@ -182,6 +181,7 @@ int main(int argc, char** argv)
 
     if (playWithGraphics)
     {
+        system("cls");
         //print board
         for (int j = 0; j < COL_SIZE; ++j)
         {
@@ -201,7 +201,7 @@ int main(int argc, char** argv)
         //Skip if current player is out of moves.
         if (!pPlayers[attackerNum]->hasMoves())
         {
-            cout << "Player " << attackerName << " has ran out of moves - SWITCHING PLAYER" << endl;
+            //cout << "Player " << attackerName << " has ran out of moves - SWITCHING PLAYER" << endl;
             attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
             changeCurrentPlayer(&attackerNum, &defenderNum);
             continue;
@@ -254,16 +254,16 @@ int main(int argc, char** argv)
                 //cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
                 continue;
             }
-            else if (attackResult == AttackResult::Hit)
-            {
-                //Hit xor self hit
-                //cout << "It's a" << (!isupper(c)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
-                continue;
-            }
-            else
-            {
-                //cout << "Double hit or hit a sunken ship - SWITCHING PLAYER" << endl;
-            }
+//            else if (attackResult == AttackResult::Hit)
+//            {
+//                //Hit xor self hit
+//                cout << "It's a" << (!isupper(c)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
+//                continue;
+//            }
+//            else
+//            {
+//                cout << "Double hit or hit a sunken ship - SWITCHING PLAYER" << endl;
+//            }
         }
         //Change player
         attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)

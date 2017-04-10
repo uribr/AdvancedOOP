@@ -211,8 +211,8 @@ int checkBoardValidity(string* board)
         }
     }
 
-    cout << "Player A has " << shipCountA << " ships" <<endl;
-    cout << "Player B has " << shipCountB << " ships" << endl;
+    //cout << "Player A has " << shipCountA << " ships" <<endl;
+    //cout << "Player B has " << shipCountB << " ships" << endl;
     // Print possible errors
     for (int i = 0; i < 4; i++)
     {
