@@ -460,14 +460,6 @@ int main(int argc, char** argv)
 
         // should always pass this check - it's for debug purposes
         std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
-        if(currentMove.first == 1 && currentMove.second == 2)
-        {
-            cout << "Cheers love, the chavelry's here!" << endl;
-        }
-        if(currentMove.first == 1 && currentMove.second == 3)
-        {
-            cout << "Cheers love, the chavelry's here!" << endl;
-        }
         if (currentMove.first < 0 || currentMove.first >= ROW_SIZE ||
                 currentMove.second < 0 || currentMove.second >= COL_SIZE )
         {
