@@ -288,7 +288,6 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
         x = -1;
         y = -1;
         stringstream lineStream(line);
-//TODO neshama ever heard of parenthesis? I added some parenthesis for readability purposes
         lineStream >> y;                                    //read y coor
         if (y < 1 || y > rows)
         {
@@ -347,19 +346,19 @@ eShipType charToShipType(char c)
 
 int charToSinkSCore(char c)
 {
-	switch (toupper(c))
-	{
-	case BOAT:
-		return BOAT_SCORE;
-	case MISSLE_SHIP:
-		return MISSLE_SHIP_SCORE;
-	case SUBMARINE:
-		return SUBMARINE_SCORE;
-	case DESTROYER:
-		return DESTROYER_SCORE;
-	default:
-		return -1;
-	}
+    switch (toupper(c))
+    {
+        case BOAT:
+            return BOAT_SCORE;
+        case MISSLE_SHIP:
+            return MISSLE_SHIP_SCORE;
+        case SUBMARINE:
+            return SUBMARINE_SCORE;
+        case DESTROYER:
+            return DESTROYER_SCORE;
+        default:
+            return -1;
+    }
 }
 
 void changeCurrentPlayer(int *attackerNum, int *defenderNum)
@@ -437,14 +436,14 @@ int main(int argc, char** argv)
 
     // Let the game begin!!!
     int attackerNum = 0;
-	int defenderNum = 1;
+    int defenderNum = 1;
     int currentScore = 0;
     int scores[2] = {0}; // index 0 = A, index 1 = B
-	Player *pPlayers[2] = { &A, &B };
+    Player *pPlayers[2] = { &A, &B };
 
     char c;
     AttackResult attackResult;
-	//Player *pCurrentPlayer = &A;
+    //Player *pCurrentPlayer = &A;
     string attackerName = "A";
     // todo - delte all debug prints!!!!
     //The game goes on until one of the players has no more ships or both ran out of moves.
@@ -462,7 +461,7 @@ int main(int argc, char** argv)
         // should always pass this check - it's for debug purposes
         std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
         if (currentMove.first < 0 || currentMove.first >= ROW_SIZE ||
-                currentMove.second < 0 || currentMove.second >= COL_SIZE )
+            currentMove.second < 0 || currentMove.second >= COL_SIZE )
         {
             cout << "Error: Invalid move from player " << attackerName << " - (" << currentMove.first << ","
                  << currentMove.second << ")" << endl;
@@ -472,18 +471,18 @@ int main(int argc, char** argv)
         c = board[currentMove.first][currentMove.second];
         // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
         cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
-		cout << "char shot: $" << c << "$" << endl;
+        cout << "char shot: $" << c << "$" << endl;
         if (c == WATER)
         {
             // Miss
-			cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
+            cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
         }
         else // Hit xor Sink xor double hit xor hit a sunken ship
         {
             pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
 
             if (attackResult == AttackResult::Sink)
-            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
+                pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
             B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
@@ -607,4 +606,3 @@ void initIndividualBoards(string *board, char **boardA, char **boardB)
 //    cout << endl;
 
 }
-
