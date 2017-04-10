@@ -13,6 +13,8 @@
 using namespace std;
 
 #define MAX_PATH 1024
+#define PARAM_QUIET "-quiet"
+#define PARAM_DELAY "-delay"
 
 const int rows = 10;
 const int cols = 10;
@@ -370,8 +372,6 @@ void changeCurrentPlayer(int *attackerNum, int *defenderNum)
 
 int main(int argc, char** argv)
 {
-    POINT p;
-
     //TODO - add some readl file loading
     string dirPath;
     string atkPathA;
@@ -382,6 +382,8 @@ int main(int argc, char** argv)
     vector<pair<int,int>> attackB;
     Player A;
     Player B;
+    DWORD sleepTime = DEFAULT_SLEEP_TIME;
+    bool playWithGraphics = true;
     char **boardA = new char *[ROW_SIZE];
     char **boardB = new char *[ROW_SIZE];
     for (int i = 0; i < COL_SIZE; ++i)
@@ -403,7 +405,7 @@ int main(int argc, char** argv)
             return -1;
         }
     }
-    else if (argc == 2)
+    else if (argc >= 2)
     {
         dirPath = argv[1];
         if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
@@ -413,6 +415,32 @@ int main(int argc, char** argv)
         boardPath = dirPath + "/" + boardPath;
         atkPathA = dirPath + "/" + atkPathA;
         atkPathB = dirPath + "/" + atkPathB;
+
+        for (int i = 2; i < argc; ++i)
+        {
+            if (!strcmp(argv[i], PARAM_QUIET))
+            {
+                playWithGraphics = false;
+            }
+            else if (!strcmp(argv[i], PARAM_DELAY))
+            {
+                if (i+1 < argc )
+                {
+                    char *p;
+                    long delay = strtol(argv[i+1], &p, 10);
+                    if (*p)
+                    {
+                        cout << "Error: expected an integer after " << PARAM_DELAY << " but got " << argv[i+1] << endl;
+                        return EXIT_FAILURE;
+                    }
+                    sleepTime = (DWORD)delay;
+
+
+                }
+            }
+
+
+        }
     }
 
     // setting up the main board
@@ -450,10 +478,21 @@ int main(int argc, char** argv)
     string attackerName = "A";
     // todo - delte all debug prints!!!!
 
-    //print board
-    for (int j = 0; j < COL_SIZE; ++j)
+    if (playWithGraphics)
     {
-        cout << board[j] << endl;;
+        //print board
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            for (int k = 0; k < COL_SIZE; ++k)
+            {
+                c = board[j][k];
+                setTextColor(isupper(c) ? COLOR_GREEN : COLOR_YELLOW);
+                cout << c;
+
+            }
+            cout << endl;
+        }
+        Sleep(sleepTime);
     }
     //The game goes on until one of the players has no more ships or both ran out of moves.
     while (pPlayers[0]->hasShips() && pPlayers[1]->hasShips() && (pPlayers[0]->hasMoves() || pPlayers[1]->hasMoves()))
@@ -478,16 +517,22 @@ int main(int argc, char** argv)
         }
 
         c = board[currentMove.first][currentMove.second];
+
+        printSign(currentMove.first, currentMove.second, COLOR_RED, BOMB_SIGN, sleepTime, playWithGraphics);
+
         // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
-        cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
-		cout << "char shot: $" << c << "$" << endl;
+        //cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
+		//cout << "char shot: $" << c << "$" << endl;
         if (c == WATER)
         {
             // Miss
-			cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
+			//cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
+            printSign(currentMove.first, currentMove.second, COLOR_DEFAULT_WHITE, WATER, sleepTime, playWithGraphics);
         }
         else // Hit xor Sink xor double hit xor hit a sunken ship
         {
+            printSign(currentMove.first, currentMove.second, (isupper(c) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
+                      sleepTime, playWithGraphics);
             pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
@@ -504,19 +549,19 @@ int main(int argc, char** argv)
                 }
                 // if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(c) ? 1 : 0)] += currentScore;
-                cout << "It's a hit! The ship has sunk! Yarr!!" << endl;
-                cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
+                //cout << "It's a hit! The ship has sunk! Yarr!!" << endl;
+                //cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
                 continue;
             }
             else if (attackResult == AttackResult::Hit)
             {
                 //Hit xor self hit
-                cout << "It's a" << (!isupper(c)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
+                //cout << "It's a" << (!isupper(c)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
                 continue;
             }
             else
             {
-                cout << "Double hit or hit a sunken ship - SWITCHING PLAYER" << endl;
+                //cout << "Double hit or hit a sunken ship - SWITCHING PLAYER" << endl;
             }
         }
         //Change player

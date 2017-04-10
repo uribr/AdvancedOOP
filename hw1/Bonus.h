@@ -4,6 +4,8 @@
 #include <windows.h>
 
 #define DEFAULT_SLEEP_TIME 1000 //milliseconds
+#define BOMB_SIGN '@'
+#define HIT_SIGN '*'
 
 typedef enum _eColor
 {
@@ -16,5 +18,7 @@ typedef enum _eColor
 void setTextColor(eColor color);
 
 void gotoxy(int x, int y);
+
+void printSign(int x, int y, eColor color, char sign, DWORD sleepTime, bool playWithGraphics);
 
 #endif //HW1_BONUSLIB_H
