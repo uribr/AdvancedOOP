@@ -8,6 +8,7 @@
 #include <vector>
 #include <stdlib.h>
 #include "Player.h"
+#include "BonusLib.h"
 
 using namespace std;
 
@@ -440,10 +441,10 @@ int main(int argc, char** argv)
     int currentScore = 0;
     int scores[2] = {0}; // index 0 = A, index 1 = B
 	Player *pPlayers[2] = { &A, &B };
-
     char c;
     AttackResult attackResult;
-	//Player *pCurrentPlayer = &A;
+
+
     string attackerName = "A";
     // todo - delte all debug prints!!!!
     //The game goes on until one of the players has no more ships or both ran out of moves.
