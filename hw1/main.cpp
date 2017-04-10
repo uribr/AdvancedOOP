@@ -295,12 +295,11 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
             continue;
         }
 
-        while (lineStream >> nextChr && nextChr == ' ')
-        {//seek comma
-            if (lineStream . eof() || nextChr != ',')
-            {
-                continue;
-            }
+        while (lineStream >> nextChr && nextChr == ' '){} //seek comma
+
+        if (lineStream . eof() || nextChr != ',')
+        {
+            continue;
         }
 
         lineStream >> x;                                    //read x coor
