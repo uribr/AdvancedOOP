@@ -22,7 +22,7 @@ std::pair<int, int> Player::attack()
         movesQueue.pop();
         return nextAttack;
     }
-    return std::pair<int,int>(-1,-1);
+    return make_pair(-1,-1);
 }
 
 void Player::notifyOnAttackResult(int player, int row, int col, AttackResult result)
