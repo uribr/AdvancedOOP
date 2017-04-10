@@ -26,7 +26,7 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
     string boardSuffix(".sboard");
     string aSuffix(".attack-a");
     string bSuffix(".attack-b");
-    string sysDIR("dir \"" + dirPath + "\" /b /a-d > file_names.txt 2>&1");
+    string sysDIR("dir 2> errors.txt \"" + dirPath + "\" /b /a-d > file_names.txt");
     const char* sysDIRc = sysDIR.c_str();
     string line;
     int lineSize;
@@ -34,15 +34,22 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
     int ret = 0;
 
     system(sysDIRc);
+
+    // check for any errors in the directory path
+    ifstream errors("errors.txt");
+    getline(errors, line);
+    if (line != "")
+    {
+        cout << "Wrong Path " << dirPath << endl;
+        errors.close();
+        return -1;
+    }
+    errors.close();
+
+    // parse directory contents
     ifstream filenames("file_names.txt");
     while (getline(filenames, line))
     {
-        if (line == "File Not Found")
-        {
-            cout << "Wrong Path " << dirPath << endl;
-            filenames.close();
-            return -1;
-        }
         lineSize = line.length();
 
         pos = line.rfind(boardSuffix);
