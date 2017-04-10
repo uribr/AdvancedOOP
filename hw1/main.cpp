@@ -20,18 +20,70 @@ const int NUM_SHIPS = 5;
 /* Searches the current working directory for the game configuration files:
  * .sboard -> boardPath
  * .attack-a -> atkPathA
- * .attack-b -> atkPathB
-int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string& boardPath) {
-}*/
+ * .attack-b -> atkPathB */
+int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string& boardPath)
+{
+    string boardSuffix(".sboard");
+    string aSuffix(".attack-a");
+    string bSuffix(".attack-b");
+    string sysDIR("dir \"" + dirPath + "\" /b /a-d > file_names.txt 2>&1");
+    const char* sysDIRc = sysDIR.c_str();
+    string line;
+    int lineSize;
+    int pos;
+    int ret = 0;
+
+    system(sysDIRc);
+    ifstream filenames("file_names.txt");
+    while (getline(filenames, line))
+    {
+        if (line == "File Not Found")
+        {
+            cout << "Wrong Path " << dirPath << endl;
+            filenames.close();
+            return -1;
+        }
+        lineSize = line.length();
+
+        pos = line.rfind(boardSuffix);
+        if ((boardPath == "") && (pos != -1) && (pos == lineSize-boardSuffix.length()))
+        {
+            boardPath = line;
+        }
+
+        pos = line.rfind(aSuffix);
+        if ((atkPathA == "") && (pos != -1) && (pos == lineSize-aSuffix.length()))
+        {
+            atkPathA = line;
+        }
+
+        pos = line.rfind(bSuffix);
+        if ((atkPathB == "") && (pos != -1) && (pos == lineSize-bSuffix.length()))
+        {
+            atkPathB = line;
+        }
+    }
+
+    if (boardPath == "")
+    {
+        cout << "Missing board file (*.sboard) looking in path: " << dirPath << endl;
+        ret = -1;
+    }
+    if (atkPathA == "")
+    {
+        cout << "Missing attack file for player A (*.attack-a) looking in path: " << dirPath << endl;
+        ret = -1;
+    }
+    if (atkPathB == "")
+    {
+        cout << "Missing attack file for player B (*.attack-b) looking in path: " << dirPath << endl;
+        ret = -1;
+    }
+    filenames.close();
+    return ret;
+}
 
 void initIndividualBoards(string *pString, char **a, char **boardB);
-
-/*string getDirPath() { // uses windows.h
-    char buff[MAX_PATH];
-    GetModuleFileName(NULL, buff, MAX_PATH); // inserts the executable path into buff
-    string tempStr = string(buff);
-    return tempStr.substr(0, tempStr.find_last_of("/\\",tempStr.length()-1));
-}*/
 
 string getDirPath()
 {
@@ -88,9 +140,38 @@ void initBoard(const string boardPath, string* board)
     boardFile.close();
 }
 
-/* Checks if the battle board is valid
- * TODO: Eliminate misshapes on the first board iteration
- * */
+int checkShape(string* board, const int size, int i, int j)
+{
+    int verL = 1, horL = 1;
+    // run horizontally, check above and below
+    while (j+horL < cols && board[i][j] == board[i][j+horL])
+    {
+        if ((i+1 < rows && board[i][j] == board[i+1][j+horL]) ||
+            (i-1 >= 0 && board[i][j] == board[i-1][j+horL]))
+        {
+            return -1;
+        }
+        horL++;
+    }
+    // run vertically, check right and left
+    while (i+verL < rows && board[i][j] == board[i+verL][j])
+    {
+        if ((j+1 < cols && board[i][j] == board[i+verL][j+1]) ||
+            (j-1 >= 0 && board[i][j] == board[i+verL][j-1]))
+        {
+            return -1;
+        }
+        verL++;
+    }
+    // check for misshape in size
+    if ((horL > 1 && verL > 1) || (horL != size && verL != size))
+    {
+        return -1;
+    }
+    return 1;
+}
+
+/* Checks if the battle board is valid */
 int checkBoardValidity(string* board)
 {
     int shipCountA = 0, shipCountB = 0, isShipA = 0, isShipB = 0, adjCheck = 0, ret = 0;
@@ -111,46 +192,13 @@ int checkBoardValidity(string* board)
                 isShipB = (shipsB[board[i][j]] != 0);
                 if (isShipA || isShipB)
                 {
-                    // Check for misshapes
-                    if ((i != 0 && board[i - 1][j] == board[i][j]) +
-                        (j != 0 && board[i][j - 1] == board[i][j]) +
-                        (i != 0 && j != 0 && board[i - 1][j - 1] == board[i][j]) >= 2)
-                    {
-                        if (isShipA)
-                        {
-                            errShipsA[shipsA[board[i][j]] - 1] = 1;
-                        }
-                        if (isShipB)
-                        {
-                            errShipsB[shipsB[board[i][j]] - 1] = 1;
-                        }
-                    }
-                    // Check if any adjacent ships exist
-                    if (((j != 0) && (board[i][j - 1] != board[i][j]) && (board[i][j - 1] != ' ')) ||
-                        ((i != 0) && (board[i - 1][j] != board[i][j]) && (board[i - 1][j] != ' ')) ||
-                        ((i != 0 && j != 0) && (board[i - 1][j - 1] != ' ')))
-                    {
-                        adjCheck = 1;
-                    }
                     // check if its new
                     if (!((i != 0 && board[i - 1][j] == board[i][j]) ||
                           (j != 0 && board[i][j - 1] == board[i][j])))
                     {
-                        // check for right ship size
-                        int verL = 1, horL = 1;
-                        while (j+horL < cols && board[i][j] == board[i][j+horL])
+                        // check for misshape
+                        if (checkShape(board, shipsB[tolower(board[i][j])], i, j) < 0)
                         {
-                            horL++;
-                        }
-                        while (i+verL < cols && board[i][j] == board[i+verL][j])
-                        {
-                            verL++;
-                        }
-                        if (verL == shipsB[tolower(board[i][j])] || horL == shipsB[tolower(board[i][j])])
-                        {
-                            shipCountA += isShipA;
-                            shipCountB += isShipB;
-                        } else {
                             if (isShipA)
                             {
                                 errShipsA[shipsA[board[i][j]] - 1] = 1;
@@ -160,6 +208,17 @@ int checkBoardValidity(string* board)
                                 errShipsB[shipsB[board[i][j]] - 1] = 1;
                             }
                         }
+                        else
+                        {
+                            shipCountA += isShipA;
+                            shipCountB += isShipB;
+                        }
+                    }
+                    // Check if any adjacent ships exist
+                    if (((j != 0) && (board[i][j - 1] != board[i][j]) && (board[i][j - 1] != ' ')) ||
+                        ((i != 0) && (board[i - 1][j] != board[i][j]) && (board[i - 1][j] != ' ')))
+                    {
+                        adjCheck = 1;
                     }
                 }
             }
@@ -236,12 +295,11 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
             continue;
         }
 
-        while (lineStream >> nextChr && nextChr == ' ')
-        {//seek comma
-            if (lineStream . eof() || nextChr != ',')
-            {
-                continue;
-            }
+        while (lineStream >> nextChr && nextChr == ' '){} //seek comma
+
+        if (lineStream . eof() || nextChr != ',')
+        {
+            continue;
         }
 
         lineStream >> x;                                    //read x coor
@@ -330,7 +388,6 @@ int main(int argc, char** argv)
         boardB[i] = new char[COL_SIZE];
     }
 
-
     if (argc == 1)
     {
         dirPath = getDirPath();
@@ -339,16 +396,30 @@ int main(int argc, char** argv)
             perror("Error");
             return EXIT_FAILURE;
         }
-        //searchFiles(argv[1], atkPathA, atkPathB, boardPath);
+        if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
+        {
+            return -1;
+        }
     }
-    else
-    { // (argc >= 2) - ignore extra arguments for now...
+    else if (argc == 2)
+    {
         dirPath = argv[1];
-        //searchFiles(dirPath, atkPathA, atkPathB, boardPath);
+        if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
+        {
+            return -1;
+        }
+        boardPath = dirPath + "/" + boardPath;
+        atkPathA = dirPath + "/" + atkPathA;
+        atkPathB = dirPath + "/" + atkPathB;
     }
 
     // setting up the main board
     initBoard(boardPath, board);
+    // checking board validity
+    if (checkBoardValidity(board) < 0)
+    {
+        return -1;
+    }
     //setting up individual boards
     initIndividualBoards(board,boardA,boardB);
     // setting up attack vectors
