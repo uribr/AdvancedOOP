@@ -60,7 +60,6 @@ void Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
     {
         res = AttackResult::Miss;
     }
-
 }
 
 bool Ship::isAlive()

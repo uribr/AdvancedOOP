@@ -442,7 +442,7 @@ int main(int argc, char** argv)
 	Player *pPlayers[2] = { &A, &B };
 
     char c;
-    AttackResult res;
+    AttackResult attackResult;
 	//Player *pCurrentPlayer = &A;
     string attackerName = "A";
     // todo - delte all debug prints!!!!
@@ -487,9 +487,14 @@ int main(int argc, char** argv)
         }
         else // Hit xor Sink xor double hit xor hit a sunken ship
         {
-            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), res);
+            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
 
-            if (res == AttackResult::Sink)
+            if (attackResult == AttackResult::Sink)
+            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
+            //notify players on attack results
+            A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
+            B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
+            if(attackResult == AttackResult::Sink)
             {
                 //Sink
                 // calculate the score
@@ -505,7 +510,7 @@ int main(int argc, char** argv)
                 cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
                 continue;
             }
-            else if (res == AttackResult::Hit)
+            else if (attackResult == AttackResult::Hit)
             {
                 //Hit xor self hit
                 cout << "It's a" << (!isupper(c)  == attackerNum ? "self" : "") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
