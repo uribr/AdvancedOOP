@@ -12,8 +12,8 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
     string sysDIR("dir 2> errors.txt \"" + dirPath + "\" /b /a-d > file_names.txt");
     const char* sysDIRc = sysDIR.c_str();
     string line;
-    int lineSize;
-    int pos;
+    size_t lineSize;
+    size_t pos;
     int ret = 0;
 
     system(sysDIRc);
@@ -76,7 +76,7 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
 string getDirPath()
 {
     char* buff = new char[MAX_PATH];
-    buff = getcwd(buff, MAX_PATH);
+    buff = _getcwd(buff, MAX_PATH);
     if (!buff)
     {
         return BAD_STRING; //signs the string is bad
