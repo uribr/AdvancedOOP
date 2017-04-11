@@ -5,10 +5,16 @@ set(id1 "304848518")
 set(id2 "313296550")
 set(id3 "201606951")
 set (SOURCE_FILES
-        file1.h
-        file1.cpp
-        file2.h
-        file2.cpp
+        IBattleshipGameAlgo.h
+        Player.h
+        Player.cpp
+        main.cpp
+        Ship.h
+        Ship.cpp
+        Bonus.h
+        Bonus.cpp
+        inputUtilities.h
+        inputUtilities.cpp
         )
 
 ### DO NOT CHANGE FROM HERE ON ###
