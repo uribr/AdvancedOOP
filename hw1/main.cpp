@@ -168,7 +168,7 @@ int main(int argc, char** argv)
         if (!pPlayers[attackerNum]->hasMoves())
         {
             //cout << "Player " << attackerName << " has ran out of moves - SWITCHING PLAYER" << endl;
-            attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+            attackerName = attackerNum ? "A" : "B";
             changeCurrentPlayer(&attackerNum, &defenderNum);
             continue;
         }

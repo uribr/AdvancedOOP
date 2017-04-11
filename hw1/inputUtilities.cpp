@@ -75,8 +75,6 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
 
 string getDirPath()
 {
-    //I defined MAX_PATH to be 1024 just to get rid of the error
-    //Might need TODO a change here
     char* buff = new char[MAX_PATH];
     buff = getcwd(buff, MAX_PATH);
     if (!buff)
