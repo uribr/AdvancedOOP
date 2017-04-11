@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Bonus.h"
+#include "Player.h"
 
 using namespace std;
 
@@ -40,6 +41,31 @@ void printSign(int x, int y, eColor color, char sign, DWORD sleepTime, bool play
         Sleep(sleepTime);
         gotoxy(origX, origY);
         setTextColor(COLOR_DEFAULT_WHITE);
+    }
+
+}
+
+void printBoard(string *board)
+{
+    char c;
+    //clear the console and print board
+    system("cls");
+    for (int i = 0; i < COL_SIZE; ++i)
+    {
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            c = board[i][j];
+            if (c == WATER)
+            {
+                setTextColor(COLOR_DEFAULT_WHITE);
+            }
+            else
+            {
+                setTextColor(isupper(c) ? COLOR_GREEN : COLOR_YELLOW);
+            }
+            cout << c;
+        }
+        cout << endl;
     }
 
 }

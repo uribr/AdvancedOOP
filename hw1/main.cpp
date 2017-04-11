@@ -1,38 +1,18 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <direct.h>
 #include <bitset>
 #include <set>
 #include <map>
 #include <vector>
 #include <stdlib.h>
 #include "inputUtilities.h"
-#include "Player.h"
 #include "Bonus.h"
 
 using namespace std;
 
 #define PARAM_QUIET "-quiet"
 #define PARAM_DELAY "-delay"
-
-
-void initIndividualBoards(string *pString, char **a, char **boardB);
-
-void printBoard(const char **board)
-{
-    for (int i = 0; i < ROW_SIZE; ++i)
-    {
-        cout << "|";
-        for (int j = 0; j < COL_SIZE; ++j)
-        {
-            cout << board[i][j];
-
-        }
-        cout << "|" << endl;
-
-    }
-}
 
 eShipType charToShipType(char c)
 {
@@ -51,7 +31,7 @@ eShipType charToShipType(char c)
     }
 }
 
-int charToSinkSCore(char c)
+int calculateSinkScore(char c)
 {
 	switch (toupper(c))
 	{
@@ -76,14 +56,13 @@ void changeCurrentPlayer(int *attackerNum, int *defenderNum)
 
 int main(int argc, char** argv)
 {
-    //TODO - add some readl file loading
     string dirPath;
     string atkPathA;
     string atkPathB;
     string boardPath;
     string* board = new string[ROW_SIZE];
-    vector<pair<int,int>> attackA;
-    vector<pair<int,int>> attackB;
+    vector<pair<int,int>> MovesA;
+    vector<pair<int,int>> MovesB;
     Player A;
     Player B;
     DWORD sleepTime = DEFAULT_SLEEP_TIME;
@@ -96,17 +75,18 @@ int main(int argc, char** argv)
         boardB[i] = new char[COL_SIZE];
     }
 
+    //processing program arguments
     if (argc == 1)
     {
         dirPath = getDirPath();
-        if (dirPath == "!@#") //error occurred in getDirPath()
+        if (dirPath == BAD_STRING) //error occurred in getDirPath()
         {
             perror("Error");
             return EXIT_FAILURE;
         }
         if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
         {
-            return -1;
+            return EXIT_FAILURE;
         }
     }
     else if (argc >= 2)
@@ -114,7 +94,7 @@ int main(int argc, char** argv)
         dirPath = argv[1];
         if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
         {
-            return -1;
+            return EXIT_FAILURE;
         }
         boardPath = dirPath + "/" + boardPath;
         atkPathA = dirPath + "/" + atkPathA;
@@ -138,7 +118,6 @@ int main(int argc, char** argv)
                         return EXIT_FAILURE;
                     }
                     sleepTime = (DWORD)delay;
-
                 }
             }
         }
@@ -149,50 +128,37 @@ int main(int argc, char** argv)
     // checking board validity
     if (checkBoardValidity(board) < 0)
     {
-        return -1;
+        return EXIT_FAILURE;
     }
     //setting up individual boards
     initIndividualBoards(board,boardA,boardB);
     // setting up attack vectors
-    initAttack(atkPathA, attackA);
-    initAttack(atkPathB, attackB);
+    initAttack(atkPathA, MovesA);
+    initAttack(atkPathB, MovesB);
 
 
     //now we pass the individual boards, attack vectors and ship liststo the players
     A.setBoard((const char **)boardA, ROW_SIZE, COL_SIZE);
     A.initShipsList();
-    A.setMoves(attackA);
+    A.setMoves(MovesA);
     B.setBoard((const char **)boardB, ROW_SIZE, COL_SIZE);
     B.initShipsList();
-    B.setMoves(attackB);
+    B.setMoves(MovesB);
 
     // Let the game begin!!!
     int attackerNum = 0;
 	int defenderNum = 1;
-    int currentScore = 0;
+    int sinkScore = 0;
     int scores[2] = {0}; // index 0 = A, index 1 = B
 	Player *pPlayers[2] = { &A, &B };
-
-    char c;
+    char hittenChar;
     AttackResult attackResult;
-	//Player *pCurrentPlayer = &A;
     string attackerName = "A";
-    // todo - delte all debug prints!!!!
 
     if (playWithGraphics)
     {
-        system("cls");
-        //print board
-        for (int j = 0; j < COL_SIZE; ++j)
-        {
-            for (int k = 0; k < COL_SIZE; ++k)
-            {
-                c = board[j][k];
-                setTextColor(isupper(c) ? COLOR_GREEN : COLOR_YELLOW);
-                cout << c;
-            }
-            cout << endl;
-        }
+        // print the initial game board
+        printBoard(board);
         Sleep(sleepTime);
     }
     //The game goes on until one of the players has no more ships or both ran out of moves.
@@ -207,8 +173,8 @@ int main(int argc, char** argv)
             continue;
         }
 
-        // should always pass this check - it's for debug purposes
         std::pair<int, int> currentMove = pPlayers[attackerNum]->attack();
+        // should always pass this check - it's for debug purposes
         if (currentMove.first < 0 || currentMove.first >= ROW_SIZE ||
                 currentMove.second < 0 || currentMove.second >= COL_SIZE )
         {
@@ -216,15 +182,12 @@ int main(int argc, char** argv)
                  << currentMove.second << ")" << endl;
             return EXIT_FAILURE;
         }
-
-        c = board[currentMove.first][currentMove.second];
-
+        hittenChar = board[currentMove.first][currentMove.second];
         printSign(currentMove.first, currentMove.second, COLOR_RED, BOMB_SIGN, sleepTime, playWithGraphics);
 
-        // todo - delete this (debug) - in this printing we see the ORIGINAL coordinates (without the (-1) offset)
         //cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
-		//cout << "char shot: $" << c << "$" << endl;
-        if (c == WATER)
+		//cout << "char shot: $" << hittenChar << "$" << endl;
+        if (hittenChar == WATER)
         {
             // Miss
 			//cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
@@ -232,9 +195,9 @@ int main(int argc, char** argv)
         }
         else // Hit xor Sink xor double hit xor hit a sunken ship
         {
-            printSign(currentMove.first, currentMove.second, (isupper(c) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
+            printSign(currentMove.first, currentMove.second, (isupper(hittenChar) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
                       sleepTime, playWithGraphics);
-            pPlayers[(isupper(c) ? 0 : 1)]->registerHit(currentMove, charToShipType(c), attackResult);
+            pPlayers[(isupper(hittenChar) ? 0 : 1)]->registerHit(currentMove, charToShipType(hittenChar), attackResult);
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
             B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
@@ -242,14 +205,14 @@ int main(int argc, char** argv)
             {
                 //Sink
                 // calculate the score
-                currentScore = charToSinkSCore(c);
-                if (currentScore == -1)
+                sinkScore = calculateSinkScore(hittenChar);
+                if (sinkScore == -1) // for debug - should not get here
                 {
-                    cout << "Error: Unexpected char on board: " << c << endl;
+                    cout << "Error: Unexpected char on board: " << hittenChar << endl;
                     return EXIT_FAILURE;
                 }
-                // if c is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
-                scores[(isupper(c) ? 1 : 0)] += currentScore;
+                // if hittenChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
+                scores[(isupper(hittenChar) ? 1 : 0)] += sinkScore;
                 //cout << "It's a hit! The ship has sunk! Yarr!!" << endl;
                 //cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
                 continue;
@@ -257,7 +220,7 @@ int main(int argc, char** argv)
 //            else if (attackResult == AttackResult::Hit)
 //            {
 //                //Hit xor self hit
-//                cout << "It's a" << (!isupper(c)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(c)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
+//                cout << "It's a" << (!isupper(hittenChar)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(hittenChar)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
 //                continue;
 //            }
 //            else
@@ -266,7 +229,7 @@ int main(int argc, char** argv)
 //            }
         }
         //Change player
-        attackerName = attackerNum ? "A" : "B"; //todo - delete this (for debug)
+        attackerName = attackerNum ? "A" : "B";
         changeCurrentPlayer(&attackerNum, &defenderNum);
     }
 
@@ -280,35 +243,7 @@ int main(int argc, char** argv)
     }
     cout << "Points:\nPlayer A:" << scores[0] << "\nPlayer B:" << scores[1] << endl;
 
-
-    /* ------------------------------ PRINT TESTS ------------------------------
-    // Print board
-    for (int i = 0; i < rows; ++i)
-    {
-        for (int j =0; j < cols; ++j)
-        {
-            cout << " | ";
-            cout << board[i][j];
-        }
-        cout << " | ";
-        cout << endl;
-    }
-    // Check board validity and print errors
-    cout << "check = " << checkBoardValidity(board) << endl;
-    // Print attack vector
-    for (int i = 0; i < attackA.size(); i++) {
-        cout << attackA[i].first << "," << attackA[i].second << endl;
-    }
-     ------------------------------------------------------------------------- */
-
-//    char **boardATest = A.getBoard();
-//    char **boardBTest = B.getBoard();
-//    printBoard((const char **)boardATest);
-//    cout << endl;
-//    printBoard((const char **)boardBTest);
-
-    //TODO - is there anything else that needs to be released/destroyed?
-    // delete local individual boards
+    // delete all local boards
     for (int i = 0; i < COL_SIZE; ++i)
     {
         delete boardA[i];
@@ -318,44 +253,10 @@ int main(int argc, char** argv)
     delete[] boardB;
     delete[] board;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 
 
-void initIndividualBoards(string *board, char **boardA, char **boardB)
-{
-    char c;
-    for (int i = 0; i < ROW_SIZE; ++i)
-    {
-        for (int j = 0; j < COL_SIZE; ++j)
-        {
-            c = board[i][j];
-            if (isalpha(c)) //part of a ship
-            {
-                if (isupper(c)) // a ship of A
-                {
-                    boardA[i][j] = c;
-                    boardB[i][j] = WATER;
-                }
-                else // a ship of B
-                {
-                    boardA[i][j] = WATER;
-                    boardB[i][j] = c;
-                }
-            }
-            else // a space - update both boards
-            {
-                boardA[i][j] = WATER;
-                boardB[i][j] = WATER;
-            }
-        }
-    }
 
-//    printBoard(boardA);
-//    cout << endl;
-//    printBoard(boardB);
-//    cout << endl;
-
-}
 

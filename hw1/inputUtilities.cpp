@@ -1,5 +1,4 @@
 #include "inputUtilities.h"
-#include "Player.h"
 
 #define MAX_PATH 1024
 
@@ -82,7 +81,7 @@ string getDirPath()
     buff = getcwd(buff, MAX_PATH);
     if (!buff)
     {
-        return "!@#"; //signs the string is bad
+        return BAD_STRING; //signs the string is bad
     }
     string temp(buff);
     delete[] buff;
@@ -125,6 +124,36 @@ void initBoard(const string boardPath, string* board)
         }
     }
     boardFile.close();
+}
+
+void initIndividualBoards(string *board, char **boardA, char **boardB)
+{
+    char c;
+    for (int i = 0; i < ROW_SIZE; ++i)
+    {
+        for (int j = 0; j < COL_SIZE; ++j)
+        {
+            c = board[i][j];
+            if (isalpha(c)) //part of a ship
+            {
+                if (isupper(c)) // a ship of A
+                {
+                    boardA[i][j] = c;
+                    boardB[i][j] = WATER;
+                }
+                else // a ship of B
+                {
+                    boardA[i][j] = WATER;
+                    boardB[i][j] = c;
+                }
+            }
+            else // a space - update both boards
+            {
+                boardA[i][j] = WATER;
+                boardB[i][j] = WATER;
+            }
+        }
+    }
 }
 
 int checkShape(string* board, const int size, int i, int j)
@@ -261,7 +290,7 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
 {
     string line;
     char nextChr;
-    int x = -1, y = -1;
+    int x,y;
     ifstream atkFile(atkPath);
 
     while(getline(atkFile, line))
@@ -273,8 +302,7 @@ void initAttack(const string atkPath, vector<pair<int,int>>& attacks)
         x = -1;
         y = -1;
         stringstream lineStream(line);
-//TODO neshama ever heard of parenthesis? I added some parenthesis for readability purposes
-        lineStream >> y;                                    //read y coor
+        lineStream >> y;  //read y coor
         if (y < 1 || y > ROW_SIZE)
         {
             continue;

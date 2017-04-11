@@ -1,6 +1,7 @@
-#ifndef HW1_BONUSLIB_H
-#define HW1_BONUSLIB_H
+#ifndef HW1_BONUS_H
+#define HW1_BONUS_H
 
+using namespace std;
 #include <windows.h>
 
 #define DEFAULT_SLEEP_TIME 1000 //milliseconds
@@ -15,10 +16,20 @@ typedef enum _eColor
     COLOR_YELLOW = 14,
 }eColor;
 
+/*changes the console output color according to the given color*/
 void setTextColor(eColor color);
 
+/*gets the current console cursor coordinates*/
+void wherexy(int& x, int& y);
+
+/*sets the console cursor to the given coordinates*/
 void gotoxy(int x, int y);
 
+/*prints the initial game board*/
+void printBoard(string *board);
+
+/*if playWithGraphics == true: prints the given sign with the given color
+ * in the given coordinates(x,y) and waits for sleepTime milliseconds*/
 void printSign(int x, int y, eColor color, char sign, DWORD sleepTime, bool playWithGraphics);
 
-#endif //HW1_BONUSLIB_H
+#endif //HW1_BONUS_H
