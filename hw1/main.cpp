@@ -216,20 +216,11 @@ int main(int argc, char** argv)
                 }
                 // if hittenChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(hittenChar) ? 1 : 0)] += sinkScore;
-                //cout << "It's a hit! The ship has sunk! Yarr!!" << endl;
-                //cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << endl;
+            }
+            if(!(isupper(hittenChar) ^ attackerNum))
+            {
                 continue;
             }
-//            else if (attackResult == AttackResult::Hit)
-//            {
-//                //Hit xor self hit
-//                cout << "It's a" << (!isupper(hittenChar)  == attackerNum ? "self " : " ") << " hit!  Yarr!!" << (!isupper(hittenChar)  == attackerNum ? "- SWITCHING PLAYER" : "") << endl;
-//                continue;
-//            }
-//            else
-//            {
-//                cout << "Double hit or hit a sunken ship - SWITCHING PLAYER" << endl;
-//            }
         }
         //Change player
         attackerName = attackerNum ? "A" : "B";
