@@ -67,6 +67,7 @@ int main(int argc, char** argv)
     Player B;
     DWORD sleepTime = DEFAULT_SLEEP_TIME;
     bool playWithGraphics = true;
+    bool gotDirPath = false;
     char **boardA = new char *[ROW_SIZE];
     char **boardB = new char *[ROW_SIZE];
     for (int i = 0; i < COL_SIZE; ++i)
@@ -76,31 +77,9 @@ int main(int argc, char** argv)
     }
 
     //processing program arguments
-    if (argc == 1)
-    {
-        dirPath = getDirPath();
-        if (dirPath == BAD_STRING) //error occurred in getDirPath()
-        {
-            perror("Error");
-            return EXIT_FAILURE;
-        }
-        if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
-        {
-            return EXIT_FAILURE;
-        }
-    }
-    else if (argc >= 2)
-    {
-        dirPath = argv[1];
-        if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
-        {
-            return EXIT_FAILURE;
-        }
-        boardPath = dirPath + "/" + boardPath;
-        atkPathA = dirPath + "/" + atkPathA;
-        atkPathB = dirPath + "/" + atkPathB;
-
-        for (int i = 2; i < argc; ++i)
+    if (argc >= 2)
+    { // we accept the arguments in any order, and we assume that if a folder path is given it is the first argument
+        for (int i = 1; i < argc; ++i)
         {
             if (!strcmp(argv[i], PARAM_QUIET))
             {
@@ -120,6 +99,31 @@ int main(int argc, char** argv)
                     sleepTime = (DWORD)delay;
                 }
             }
+            else if (i == 1)
+            { // we assume that if there's a folder path it is the first argument
+                dirPath = argv[1];
+                if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
+                {
+                    return EXIT_FAILURE;
+                }
+                boardPath = dirPath + "/" + boardPath;
+                atkPathA = dirPath + "/" + atkPathA;
+                atkPathB = dirPath + "/" + atkPathB;
+                gotDirPath = true;
+            }
+        }
+    }
+    if (!gotDirPath) // directory path given
+    {
+        dirPath = getDirPath();
+        if (dirPath == BAD_STRING) //error occurred in getDirPath()
+        {
+            perror("Error");
+            return EXIT_FAILURE;
+        }
+        if (searchFiles(dirPath, atkPathA, atkPathB, boardPath) < 0)
+        {
+            return EXIT_FAILURE;
         }
     }
 

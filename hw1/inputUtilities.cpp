@@ -1,6 +1,6 @@
 #include "inputUtilities.h"
 
-#define MAX_PATH 1024
+#define MAX_PATH_LEN 1024
 
 using namespace std;
 
@@ -75,8 +75,8 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
 
 string getDirPath()
 {
-    char* buff = new char[MAX_PATH];
-    buff = _getcwd(buff, MAX_PATH);
+    char* buff = new char[MAX_PATH_LEN];
+    buff = _getcwd(buff, MAX_PATH_LEN);
     if (!buff)
     {
         return BAD_STRING; //signs the string is bad
