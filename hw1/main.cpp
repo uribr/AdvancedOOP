@@ -91,12 +91,11 @@ int main(int argc, char** argv)
                 {
                     char *p;
                     long delay = strtol(argv[i+1], &p, 10);
-                    if (*p)
+                    if (!*p)
                     {
-                        cout << "Error: expected an integer after " << PARAM_DELAY << " but got " << argv[i+1] << endl;
-                        return EXIT_FAILURE;
+                        sleepTime = (DWORD)delay;
                     }
-                    sleepTime = (DWORD)delay;
+                    // if there's no integer after PARAM_DELAY - we ignore this parameter...
                 }
             }
             else if (i == 1)
