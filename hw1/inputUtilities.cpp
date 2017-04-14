@@ -25,9 +25,17 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
     {
         cout << "Wrong Path " << dirPath << endl;
         errors.close();
+        if (remove("errors.txt") != 0)
+        {
+            cout << "Error deleting errors.txt file" << endl;
+        }
         return -1;
     }
     errors.close();
+    if (remove("errors.txt") != 0)
+    {
+        cout << "Error deleting errors.txt file" << endl;
+    }
 
     // parse directory contents
     ifstream filenames("file_names.txt");
@@ -70,6 +78,10 @@ int searchFiles(const string dirPath, string& atkPathA, string& atkPathB, string
         ret = -1;
     }
     filenames.close();
+    if (remove("file_names.txt") != 0)
+    {
+        cout << "Error deleting file_names.txt file" << endl;
+    }
     return ret;
 }
 
