@@ -2,6 +2,7 @@
 #define HW1_PLAYER_H
 
 #include <queue>
+#include <cctype>
 #include "IBattleshipGameAlgo.h"
 #include "Ship.h"
 
