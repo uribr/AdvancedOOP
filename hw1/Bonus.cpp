@@ -2,8 +2,6 @@
 #include "Bonus.h"
 #include "Player.h"
 
-using namespace std;
-
 void wherexy(int& x, int& y){
     CONSOLE_SCREEN_BUFFER_INFO screenBufferInfo;
     HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -11,8 +9,8 @@ void wherexy(int& x, int& y){
     {
         cout << "Error: in wherexy" << endl;
     }
-    x = screenBufferInfo.dwCursorPosition.X;
-    y = screenBufferInfo.dwCursorPosition.Y;
+    y = screenBufferInfo.dwCursorPosition.X;
+    x = screenBufferInfo.dwCursorPosition.Y;
 }
 
 void gotoxy(int x, int y)
@@ -21,7 +19,6 @@ void gotoxy(int x, int y)
     coord.X = (short)y;
     coord.Y = (short)x;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-
 }
 
 void setTextColor(eColor color)
@@ -34,7 +31,7 @@ void printSign(int x, int y, eColor color, char sign, DWORD sleepTime, bool play
     if (playWithGraphics)
     {
         int origX, origY;
-        wherexy(origY, origX);
+        wherexy(origX, origY);
         gotoxy(x, y);
         setTextColor(color);
         std::cout << sign;

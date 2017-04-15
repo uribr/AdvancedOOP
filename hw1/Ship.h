@@ -1,7 +1,3 @@
-//
-// Created by noamg on 06/04/2017.
-//
-
 #ifndef HW1_SHIP_H
 #define HW1_SHIP_H
 
@@ -39,14 +35,18 @@ class Ship
 public:
     Ship(int size, eShipType type, std::map<std::pair<int,int>, bool> coordinates);
     Ship();
-    void setType(eShipType type);
-    void setCoordinates(std::map<std::pair<int,int>, bool> coordinates);
-    void setSize(int size);
     eShipType getType();
     std::map<std::pair<int,int>, bool> getCoordinates();
-    int getSize();
-    bool handleHit(std::pair<int,int> coords, AttackResult& res); //Update the ships' status and return if it sank or just hit.
-    bool isAlive();
+
+    /*Update the ship's after it gets a hit. return true if a real hit occurs
+     * (i.e a "living" ship tile is hit) */
+    bool handleHit(std::pair<int,int> coords, AttackResult& res);
+
+    //void setType(eShipType type);
+    //void setCoordinates(std::map<std::pair<int,int>, bool> coordinates);
+    //void setSize(int size);
+    //int getSize();
+    //bool isAlive();
 
 
 };

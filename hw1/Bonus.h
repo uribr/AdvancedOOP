@@ -1,8 +1,9 @@
 #ifndef HW1_BONUS_H
 #define HW1_BONUS_H
 
-using namespace std;
 #include <windows.h>
+using namespace std;
+
 
 #define DEFAULT_SLEEP_TIME 1000 //milliseconds
 #define BOMB_SIGN '@'

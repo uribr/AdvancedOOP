@@ -1,11 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <bitset>
-#include <set>
-#include <map>
-#include <vector>
-#include <stdlib.h>
 #include "inputUtilities.h"
 #include "Bonus.h"
 
@@ -154,7 +146,7 @@ int main(int argc, char** argv)
     int sinkScore = 0;
     int scores[2] = {0}; // index 0 = A, index 1 = B
 	Player *pPlayers[2] = { &A, &B };
-    char hittenChar;
+    char hitChar;
     AttackResult attackResult;
     string attackerName = "A";
 
@@ -185,12 +177,12 @@ int main(int argc, char** argv)
                  << currentMove.second << ")" << endl;
             return EXIT_FAILURE;
         }
-        hittenChar = board[currentMove.first][currentMove.second];
+        hitChar = board[currentMove.first][currentMove.second];
         printSign(currentMove.first, currentMove.second, COLOR_RED, BOMB_SIGN, sleepTime, playWithGraphics);
 
         //cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
-		//cout << "char shot: $" << hittenChar << "$" << endl;
-        if (hittenChar == WATER)
+		//cout << "char shot: $" << hitChar << "$" << endl;
+        if (hitChar == WATER)
         {
             // Miss
 			//cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
@@ -198,26 +190,28 @@ int main(int argc, char** argv)
         }
         else // Hit xor Sink xor double hit xor hit a sunken ship
         {
-            printSign(currentMove.first, currentMove.second, (isupper(hittenChar) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
-                      sleepTime, playWithGraphics);
-            bool validAttack = pPlayers[(isupper(hittenChar) ? 0 : 1)]->registerHit(currentMove, charToShipType(hittenChar), attackResult);
+            bool validAttack = pPlayers[(isupper(hitChar) ? 0 : 1)]->registerHit(currentMove, charToShipType(hitChar), attackResult);
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
             B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
+            printSign(currentMove.first, currentMove.second, (isupper(hitChar) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
+                      sleepTime, playWithGraphics);
             if(attackResult == AttackResult::Sink)
             {
                 //Sink
                 // calculate the score
-                sinkScore = calculateSinkScore(hittenChar);
+                sinkScore = calculateSinkScore(hitChar);
                 if (sinkScore == -1) // for debug - should not get here
                 {
-                    cout << "Error: Unexpected char on board: " << hittenChar << endl;
+                    cout << "Error: Unexpected char on board: " << hitChar << endl;
                     return EXIT_FAILURE;
                 }
-                // if hittenChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
-                scores[(isupper(hittenChar) ? 1 : 0)] += sinkScore;
+                // if hitChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
+                scores[(isupper(hitChar) ? 1 : 0)] += sinkScore;
             }
-            if(!(isupper(hittenChar) ^ attackerNum) && validAttack)
+            // in case where there was a "real" hit (i.e a "living" tile got a hit) and it wasn't a self it,
+            // the attacker gets anothen turn
+            if(validAttack && !(isupper(hitChar) ^ attackerNum))
             {
                 continue;
             }
