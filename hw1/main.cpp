@@ -217,7 +217,7 @@ int main(int argc, char** argv)
                 // if hittenChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(hittenChar) ? 1 : 0)] += sinkScore;
             }
-            if(!(isupper(hittenChar) ^ attackerNum) & attackResult != AttackResult::Miss)
+            if(!(isupper(hittenChar) ^ attackerNum) && attackResult != AttackResult::Miss)
             {
                 continue;
             }
