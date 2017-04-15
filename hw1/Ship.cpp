@@ -42,6 +42,7 @@ int Ship::getSize()
 bool Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
 {
     // update only until size == 0 (don't allow negative size)
+    bool temp = this->coordinates[coords];
     if (this->isAlive())
     {
         this->coordinates[coords] = false;
@@ -60,7 +61,7 @@ bool Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
     {
         res = AttackResult::Miss;
     }
-    return this->coordinates[coords];
+    return temp;
 }
 
 bool Ship::isAlive()
