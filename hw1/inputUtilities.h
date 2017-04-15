@@ -10,6 +10,7 @@
 #include <map>
 #include <vector>
 #include <stdlib.h>
+#include <cstdio>
 #include "Player.h"
 
 #define BAD_STRING "!@#" // for getDirPath
