@@ -64,6 +64,7 @@ char ** Player::getBoard()
 bool Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackResult& res)
 {
     int i = 0;
+    bool validAttack = false;
     for(; i < DEFAULT_SHIPS_COUNT; i++)
     {
         if(this->shipsList[i].getType() == shipType)
@@ -71,7 +72,7 @@ bool Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackRe
             //Make sure this coordinate belongs to this ship
             if(this->shipsList[i].getCoordinates().count(coords) == 1)
             {
-                this->shipsList[i].handleHit(coords, res);
+                validAttack = this->shipsList[i].handleHit(coords, res);
                 if(res == AttackResult::Sink)
                 {
                     this->shipsCount--;
@@ -80,7 +81,7 @@ bool Player::registerHit(std::pair<int,int> coords, eShipType shipType, AttackRe
             }
         }
     }
-    return this->shipsList[i].isAlive();
+    return validAttack;
 }
 
 bool Player::hasShips()

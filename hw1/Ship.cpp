@@ -39,13 +39,13 @@ int Ship::getSize()
     return this->size;
 }
 
-void Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
+bool Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
 {
     // update only until size == 0 (don't allow negative size)
-    if (this->coordinates[coords] == true && this->isAlive())
+    if (this->isAlive())
     {
         this->coordinates[coords] = false;
-        this->setSize(this->getSize()-1);
+        this->size = this->size-1;
         if (isAlive())
         {
             res = AttackResult::Hit;
@@ -60,6 +60,7 @@ void Ship::handleHit(std::pair<int,int> coords, AttackResult& res)
     {
         res = AttackResult::Miss;
     }
+    return this->coordinates[coords];
 }
 
 bool Ship::isAlive()

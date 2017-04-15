@@ -200,7 +200,7 @@ int main(int argc, char** argv)
         {
             printSign(currentMove.first, currentMove.second, (isupper(hittenChar) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
                       sleepTime, playWithGraphics);
-            pPlayers[(isupper(hittenChar) ? 0 : 1)]->registerHit(currentMove, charToShipType(hittenChar), attackResult);
+            bool validAttack = pPlayers[(isupper(hittenChar) ? 0 : 1)]->registerHit(currentMove, charToShipType(hittenChar), attackResult);
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
             B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
                 // if hittenChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(hittenChar) ? 1 : 0)] += sinkScore;
             }
-            if(!(isupper(hittenChar) ^ attackerNum) && attackResult != AttackResult::Miss)
+            if(!(isupper(hittenChar) ^ attackerNum) && validAttack)
             {
                 continue;
             }
