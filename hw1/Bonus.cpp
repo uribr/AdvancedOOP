@@ -42,6 +42,14 @@ void printSign(int x, int y, eColor color, char sign, DWORD sleepTime, bool play
 
 }
 
+void clearLastLine()
+{
+	char s[100];
+	memset(s, ' ', 100); // fill with space bars
+	s[99] = 0;
+	cout << s << "\r";
+}
+
 void printBoard(string *board)
 {
     char c;
@@ -64,6 +72,20 @@ void printBoard(string *board)
         }
         cout << endl;
     }
+	setTextColor(COLOR_DEFAULT_WHITE);
 
+}
+
+void printOpeningMessage()
+{
+	system("cls");
+	cout << "*******************************\n" << \
+			"*                             *\n" << \
+			"*         BATTLESHIP          *\n" << \
+			"*                             *\n" << \
+			"*   Version 1.0, April 2017   *\n" << \
+			"*   (c)all rights reserved    *\n" << \
+			"*                             *\n" << \
+			"*******************************";
 }
 

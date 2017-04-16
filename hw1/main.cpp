@@ -152,6 +152,8 @@ int main(int argc, char** argv)
 
     if (playWithGraphics)
     {
+		printOpeningMessage();
+		Sleep(3*DEFAULT_SLEEP_TIME);
         // print the initial game board
         printBoard(board);
         Sleep(sleepTime);
@@ -178,14 +180,22 @@ int main(int argc, char** argv)
             return EXIT_FAILURE;
         }
         hitChar = board[currentMove.first][currentMove.second];
+		if (playWithGraphics)
+		{
+			clearLastLine();
+			cout << attackerName << " shoots at (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ") - ";
+			Sleep(sleepTime);
+		}
         printSign(currentMove.first, currentMove.second, COLOR_RED, BOMB_SIGN, sleepTime, playWithGraphics);
 
-        //cout << attackerName << ": (" << (currentMove.first + 1) << "," << (currentMove.second + 1) << ")" << endl;
 		//cout << "char shot: $" << hitChar << "$" << endl;
         if (hitChar == WATER)
         {
             // Miss
-			//cout << "It's a miss - no points for you, come back tomorrow - SWITCHING PLAYER" << endl;
+			if (playWithGraphics)
+			{
+				cout << "MISS\r";
+			}
             printSign(currentMove.first, currentMove.second, COLOR_DEFAULT_WHITE, WATER, sleepTime, playWithGraphics);
         }
         else // Hit xor Sink xor double hit xor hit a sunken ship
@@ -194,8 +204,6 @@ int main(int argc, char** argv)
             //notify players on attack results
             A.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
             B.notifyOnAttackResult(attackerNum, currentMove.first, currentMove.second, attackResult);
-            printSign(currentMove.first, currentMove.second, (isupper(hitChar) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
-                      sleepTime, playWithGraphics);
             if(attackResult == AttackResult::Sink)
             {
                 //Sink
@@ -208,7 +216,32 @@ int main(int argc, char** argv)
                 }
                 // if hitChar is an UPPERCASE char - than A was hit and B gets the points (and vice versa)
                 scores[(isupper(hitChar) ? 1 : 0)] += sinkScore;
+				if (playWithGraphics)
+				{
+					cout << (!isupper(hitChar) == attackerNum ? "SELF-SINK" : "SINK") << "\r";
+					Sleep(sleepTime);
+					clearLastLine();
+					cout << "CURRENT SCORE: A-" << scores[0] << ", B-" << scores[1] << "\r";
+					Sleep(sleepTime);
+				}
             }
+			else
+			{
+				if (playWithGraphics)
+				{
+					if (validAttack && attackResult == AttackResult::Hit)
+					{
+						//Hit xor self hit
+						cout << (!isupper(hitChar) == attackerNum ? "SELF-HIT" : "HIT") << "\r";
+					}
+					else
+					{
+						cout << "ALREADY HIT\r";
+					}
+				}
+			}
+			printSign(currentMove.first, currentMove.second, (isupper(hitChar) ? COLOR_GREEN : COLOR_YELLOW), HIT_SIGN,
+				sleepTime, playWithGraphics);
             // in case where there was a "real" hit (i.e a "living" tile got a hit) and it wasn't a self it,
             // the attacker gets anothen turn
             if(validAttack && !(isupper(hitChar) ^ attackerNum))
@@ -220,7 +253,10 @@ int main(int argc, char** argv)
         attackerName = attackerNum ? "A" : "B";
         changeCurrentPlayer(&attackerNum, &defenderNum);
     }
-
+	if (playWithGraphics)
+	{
+		clearLastLine();
+	}
     if(!pPlayers[0]->hasShips())
     {
         cout << "Player B won" << endl;

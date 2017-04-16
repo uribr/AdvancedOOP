@@ -29,8 +29,11 @@ void gotoxy(int x, int y);
 /*prints the initial game board*/
 void printBoard(string *board);
 
+void printOpeningMessage();
+
 /*if playWithGraphics == true: prints the given sign with the given color
  * in the given coordinates(x,y) and waits for sleepTime milliseconds*/
 void printSign(int x, int y, eColor color, char sign, DWORD sleepTime, bool playWithGraphics);
 
+void clearLastLine();
 #endif //HW1_BONUS_H
